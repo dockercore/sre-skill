@@ -1,1414 +1,1107 @@
-# SRE Skill — Server Operations Toolkit
+# SRE Skill — 服务器运维工具集
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![OS: Linux](https://img.shields.io/badge/OS-Linux%20%7C%20macOS-green.svg)](https://www.linux.org/)
-[![Platform: Ubuntu/Debian/CentOS/RHEL/macOS](https://img.shields.io/badge/Platform-Ubuntu%20%7C%20Debian%20%7C%20CentOS%20%7C%20RHEL%20%7C%20macOS-lightgrey.svg)]()
-
-A comprehensive, beginner-friendly server operations toolkit covering **monitoring**, **log analysis**, **service management**, and **Docker/container management**. Designed for anyone — from first-day Linux users to seasoned sysadmins.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Linux](https://img.shields.io/badge/Platform-Linux%20%28Ubuntu%7CDebian%7CCentOS%7CRHEL%29-blue.svg)](https://www.linux.org/)
+[![macOS](https://img.shields.io/badge/Platform-macOS%20%28Darwin%29-grey.svg)](https://www.apple.com/macos/)
 
 ---
 
-## Table of Contents
+## 目录
 
-1. [What is This?](#what-is-this)
-2. [Quick Start](#quick-start)
-3. [Prerequisites](#prerequisites)
-4. [Module 1: Server Monitoring & Health Check](#module-1-server-monitoring--health-check)
-5. [Module 2: Log Analysis & Troubleshooting](#module-2-log-analysis--troubleshooting)
-6. [Module 3: Service Management](#module-3-service-management)
-7. [Module 4: Docker & Container Management](#module-4-docker--container-management)
-8. [Alert Thresholds Reference](#alert-thresholds-reference)
-9. [Common Scenarios (Playbook)](#common-scenarios-playbook)
-10. [FAQ](#faq)
-11. [Contributing](#contributing)
-12. [License](#license)
-13. [Language / 语言](#language--语言)
-
----
-
-## What is This?
-
-**SRE** stands for **Site Reliability Engineering**. It is a discipline that applies software engineering principles to infrastructure and operations problems. In plain English: SRE is about keeping your servers running smoothly, finding problems before they cause outages, and fixing them quickly when they do break.
-
-This toolkit — **sre-skill** — gives you a single place to learn and run every common server operations task. It includes:
-
-- A **one-command health check script** that scans your entire server in seconds
-- **Monitoring commands** for CPU, memory, disk, network, and processes
-- **Log analysis techniques** to find out what went wrong and why
-- **Service management** tools to start, stop, and configure services
-- **Docker/container management** to run and maintain containerized applications
-
-**Who is this for?** Anyone with a Linux server. Whether you just got your first VPS or you have been running production servers for years, this toolkit has something for you.
-
-**What systems does it support?** Linux (Ubuntu, Debian, CentOS, RHEL) and macOS (Darwin). The health check script automatically detects your operating system and uses the right commands for each platform.
+- [这是什么？](#这是什么)
+- [快速开始](#快速开始)
+- [前置条件](#前置条件)
+- [模块一：服务器监控与巡检](#模块一服务器监控与巡检)
+- [模块二：日志分析与故障排查](#模块二日志分析与故障排查)
+- [模块三：服务管理](#模块三服务管理)
+- [模块四：Docker 与容器管理](#模块四docker-与容器管理)
+- [告警阈值参考](#告警阈值参考)
+- [常见场景 Playbook](#常见场景-playbook)
+- [FAQ](#faq)
+- [贡献指南](#贡献指南)
+- [协议](#协议)
+- [语言](#语言)
 
 ---
 
-## Quick Start
+## 这是什么？
 
-Follow these steps to get up and running in under 2 minutes. Every step includes the exact command to type and what you should see.
+### SRE 是什么？
 
-### Step 1: Clone the Repository
+SRE 的全称是 **Site Reliability Engineering**（站点可靠性工程）。通俗地说，SRE 就是确保你的网站、应用、服务器能够**稳定运行**的一套方法和工具。如果你开了一家 24 小时营业的店，SRE 就是那个确保灯永远亮着、门永远开着、收银机永远不坏的人。
 
-"Cloning" means downloading a copy of the project code to your computer. You need `git` installed (it usually is on most Linux servers).
+### 这个工具集能做什么？
+
+**sre-skill** 是一个面向初学者的服务器运维工具集，它把日常运维中最常用的操作整理成了四大模块：
+
+| 模块 | 干什么用的 |
+|------|-----------|
+| 服务器监控与巡检 | 检查服务器的"健康状况"——CPU、内存、磁盘、网络有没有问题 |
+| 日志分析与故障排查 | 查"日记"找出服务器出问题的原因 |
+| 服务管理 | 管理服务器上运行的各种服务（启动、停止、重启等） |
+| Docker 与容器管理 | 管理用 Docker 跑的应用容器 |
+
+简单说：**你的服务器出了问题，用这个工具集就能一步步找到原因并解决。**
+
+---
+
+## 快速开始
+
+下面我们从头开始，一步一步来。假设你刚刚拿到一台 Linux 服务器，什么都还没装。
+
+### 第 1 步：克隆项目
+
+"克隆"就是把代码从 GitHub 下载到你服务器上的过程。
 
 ```bash
-# Clone the project from GitHub to your machine
+# 克隆项目到本地（git clone 后面是仓库地址）
 git clone git@github.com:dockercore/sre-skill.git
 
-# Enter the project directory
+# 进入项目目录
 cd sre-skill
 ```
 
-**Expected output:**
+期望输出类似：
 
 ```
 Cloning into 'sre-skill'...
-remote: Enumerating objects: 30, done.
-remote: Counting objects: 100% (30/30), done.
-remote: Compressing objects: 100% (20/20), done.
-remote: Total 30 (delta 10), reused 24 (delta 8), pack-reused 0
-Receiving objects: 100% (30/30), 12.45 KiB | 2.07 MiB/s, done.
-Resolving deltas: 100% (10/10), done.
+remote: Enumerating objects: 42, done.
+remote: Counting objects: 100% (42/42), done.
+remote: Compressing objects: 100% (35/35), done.
+Receiving objects: 100% (42/42), 1.23 MiB | 2.45 MiB/s, done.
+Resolving deltas: 100% (12/12), done.
 ```
 
-### Step 2: Run the Health Check (Quick Mode)
+### 第 2 步：运行健康巡检
 
-The quick mode gives you a fast overview of your server health. It checks CPU, memory, disk, network, processes, and Docker in just a few seconds.
+巡检脚本会自动检查你服务器的各项指标，就像体检一样。
 
 ```bash
-# Run the health check script in quick mode (default)
+# 给脚本添加可执行权限（chmod +x 表示"让这个文件可以被执行"）
+chmod +x scripts/health-check.sh
+
+# 运行快速巡检（只检查最重要的几项）
 bash scripts/health-check.sh --quick
 ```
 
-**Expected output (example on a healthy Linux server):**
+期望输出示例：
 
 ```
-=========================================
-  Server Health Check  2026-04-14 14:30:00
-  System: Linux
-=========================================
+=======================================
+  SRE Skill - 服务器健康巡检报告
+  时间: 2026-04-14 14:30:00
+  主机: my-server
+=======================================
 
-[System Info]
-  Hostname:   my-server
-  Kernel:     5.15.0-91-generic
-  Uptime:     up 42 days
-  Current User: root
+[CPU] 使用率: 23.5% (4核)  ✅ 正常
+[内存] 已用: 3.2G/8.0G (40%)  ✅ 正常
+[磁盘] / 分区: 45% 已用  ✅ 正常
+[网络] 活跃连接: 128  ✅ 正常
+[进程] 僵尸进程: 0  ✅ 正常
+[Docker] 运行中容器: 3  ✅ 正常
 
-[CPU]
-  [OK]   CPU Usage 23%
-  CPU Cores: 4
-  Load Average: 0.45 0.38 0.42
-
-[Memory]
-  [OK]   Memory Usage 45% (1800M/4096M)
-  Available: 2100M
-  [OK]   Swap Usage 2% (48M/2048M)
-
-[Disk]
-  [OK]   Mount: /  Size: 50G  Used: 20G  Avail: 28G  Usage: 42%
-  [OK]   Mount: /home  Size: 100G  Used: 35G  Avail: 60G  Usage: 36%
-
-[Network]
-  [OK]   Listening Ports: 5
-  Port List: 22 80 443 3306 8080
-  ESTABLISHED: 28
-
-[Process]
-  [OK]   Total Processes: 127
-  [OK]   No zombie processes
-
-[Top 5 CPU Processes]
-  nginx        root       2.3%  1.1%
-  mysqld       mysql      1.8%  4.2%
-  node         appuser    1.2%  3.5%
-  python3      appuser    0.9%  2.8%
-  sshd         root       0.1%  0.2%
-
-[Top 5 Memory Processes]
-  mysqld       mysql      1.8%  4.2%
-  node         appuser    1.2%  3.5%
-  python3      appuser    0.9%  2.8%
-  nginx        root       2.3%  1.1%
-  systemd      root       0.0%  0.8%
-
-[Failed Services]
-  [OK]   No failed services
-
-[Docker]
-  [OK]   Docker daemon is running
-  Running Containers: 3
-  Stopped Containers: 1
-  Images: 7
-
-=========================================
-  Check Complete
-=========================================
+=======================================
+  巡检结果: 全部正常 ✅
+=======================================
 ```
 
-### Step 3: Run the Full Health Check
-
-Full mode adds extra detail: network interface information and Docker container details.
+### 第 3 步：查看完整巡检
 
 ```bash
-# Run the full health check with extended information
-bash scripts/health-check.sh --full
-```
-
-In full mode, you will see additional sections like:
-
-```
-[Network Interfaces]
-  lo               UNKNOWN        127.0.0.1/8
-  eth0             UP             192.168.1.100/24
-
-  [Container Details]
-  NAMES           STATUS              PORTS
-  myapp           Up 3 hours          0.0.0.0:8080->80/tcp
-  redis           Up 3 hours          0.0.0.0:6379->6379/tcp
-  db              Up 3 hours          0.0.0.0:3306->3306/tcp
-```
-
-**Understanding the output symbols:**
-
-| Symbol | Meaning | What to do |
-|--------|---------|------------|
-| `[OK]` | Everything looks normal | No action needed |
-| `[WARN]` | Approaching a problem threshold | Investigate soon |
-| `[FAIL]` | Critical problem detected | Fix immediately |
-
----
-
-## Prerequisites
-
-Most of the tools used by this toolkit come pre-installed on Linux servers. Here is what you need and how to install anything missing.
-
-### Essential Tools (Usually Pre-installed)
-
-| Tool | Purpose | How to Install if Missing |
-|------|---------|---------------------------|
-| `bash` | Runs the health check script | Pre-installed on virtually all Linux/macOS |
-| `top` | CPU monitoring | Pre-installed |
-| `free` | Memory monitoring (Linux) | Pre-installed on Linux |
-| `df` | Disk usage | Pre-installed |
-| `ps` | Process listing | Pre-installed |
-| `ss` | Network socket stats (Linux) | Pre-installed on modern Linux |
-| `grep` | Search text in files | Pre-installed |
-| `awk` | Process text data | Pre-installed |
-| `curl` | Test network connectivity | Pre-installed on most systems |
-
-### Optional but Recommended Tools
-
-| Tool | Purpose | Install Command (Ubuntu/Debian) | Install Command (CentOS/RHEL) |
-|------|---------|--------------------------------|-------------------------------|
-| `sysstat` | CPU/memory I/O stats (`mpstat`, `iostat`, `pidstat`) | `sudo apt install sysstat` | `sudo yum install sysstat` |
-| `iftop` | Real-time bandwidth monitoring | `sudo apt install iftop` | `sudo yum install iftop` |
-| `nload` | Network traffic visualization | `sudo apt install nload` | `sudo yum install nload` |
-| `iotop` | Disk I/O monitoring | `sudo apt install iotop` | `sudo yum install iotop` |
-| `lsof` | List open files and ports | `sudo apt install lsof` | `sudo yum install lsof` |
-| `docker` | Container management | See [official docs](https://docs.docker.com/engine/install/) | See [official docs](https://docs.docker.com/engine/install/) |
-| `docker compose` | Multi-container apps | Included with Docker Desktop / Docker plugin | Included with Docker plugin |
-
-### macOS Notes
-
-On macOS, the toolkit uses different commands automatically:
-- `vm_stat` instead of `free` (memory stats)
-- `top -l 1` instead of `top -bn1` (CPU snapshot)
-- `lsof` instead of `ss` (network ports)
-- `sysctl` instead of `/proc` filesystem (system info)
-
-Install missing macOS tools with Homebrew:
-
-```bash
-# Install Homebrew first if you do not have it
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install useful tools
-brew install sysstat    # for iostat
-brew install iftop      # for bandwidth monitoring
-```
-
-> **Note:** On macOS, you may see `/dev` showing 100% disk usage. This is the devfs virtual filesystem and is completely normal — it does NOT mean your disk is full. You can safely ignore it.
-
----
-
-## Module 1: Server Monitoring & Health Check
-
-This module teaches you how to monitor every aspect of your server. You will learn what each metric means, how to check it, and what values are healthy versus dangerous.
-
-### Running the Health Check Script
-
-The health check script (`scripts/health-check.sh`) is your one-command server dashboard. It checks everything automatically.
-
-```bash
-# Quick mode — fast overview, ideal for daily checks
-bash scripts/health-check.sh --quick
-
-# Full mode — includes network interfaces and Docker container details
-bash scripts/health-check.sh --full
-
-# Default (no argument) is the same as --quick
+# 运行完整巡检（检查所有项目，更详细）
 bash scripts/health-check.sh
 ```
 
-### Understanding the Health Check Output — Section by Section
+完整巡检会输出更详细的信息，包括每个分区的使用率、Top 进程、网络连接详情等。具体内容我们在"模块一"中详细解释。
 
-#### System Info Section
+---
 
-```
-[System Info]
-  Hostname:   my-server
-  Kernel:     5.15.0-91-generic
-  Uptime:     up 42 days
-  Current User: root
-```
+## 前置条件
 
-- **Hostname**: The name of your server on the network. Useful when you manage multiple servers.
-- **Kernel**: The version of the Linux kernel. Important for security patches — keep this updated.
-- **Uptime**: How long the server has been running since the last reboot. A very long uptime (hundreds of days) can mean you have not applied kernel security updates (which require a reboot).
-- **Current User**: The user account running the check. `root` means full admin privileges.
+大部分 Linux 系统自带了这些工具，你不需要额外安装。但万一缺少某个，下面也告诉你怎么装。
 
-#### CPU Section
+### 必需工具清单
 
-```
-[CPU]
-  [OK]   CPU Usage 23%
-  CPU Cores: 4
-  Load Average: 0.45 0.38 0.42
-```
+| 工具 | 干什么用的 | 一般自带吗？ | 安装方法 |
+|------|-----------|-------------|---------|
+| bash | 执行脚本的命令行 | ✅ 自带 | 系统自带 |
+| git | 下载代码 | ⚠️ 不一定 | Ubuntu/Debian: `sudo apt install git` / CentOS/RHEL: `sudo yum install git` |
+| top/htop | 查看 CPU 和进程 | ✅ 自带 | `sudo apt install htop` 或 `sudo yum install htop` |
+| free | 查看内存 | ✅ 自带 | 系统自带 |
+| df/du | 查看磁盘 | ✅ 自带 | 系统自带 |
+| netstat/ss | 查看网络 | ⚠️ 不一定 | `sudo apt install net-tools` |
+| journalctl | 查看系统日志 | ✅ 自带 (systemd 系统) | 系统自带 |
+| systemctl | 管理服务 | ✅ 自带 (systemd 系统) | 系统自带 |
+| docker | 管理容器 | ❌ 需安装 | 见下方 |
 
-- **CPU Usage**: The percentage of time the CPU is busy doing work (not idle). 23% means the CPU is working about a quarter of the time.
-- **CPU Cores**: The number of processing units. More cores means the server can handle more simultaneous work.
-- **Load Average**: Three numbers showing the average number of processes waiting to use the CPU over the last 1 minute, 5 minutes, and 15 minutes.
+### 安装 Docker
 
-**What is Load Average?** Think of it like a line at a store. If you have 4 cashiers (cores) and the load average is 4.0, every cashier is busy but no one is waiting. If the load average is 8.0, every cashier is busy AND there are 4 people waiting in line. A load average higher than your core count means the CPU is overwhelmed.
-
-| Load Average vs Cores | Meaning |
-|----------------------|---------|
-| Load < Core count | Server is healthy, plenty of CPU capacity |
-| Load = Core count | Server is fully utilized, still OK |
-| Load > Core count | Server is overloaded, tasks are waiting |
-
-#### Memory Section
-
-```
-[Memory]
-  [OK]   Memory Usage 45% (1800M/4096M)
-  Available: 2100M
-  [OK]   Swap Usage 2% (48M/2048M)
-```
-
-- **Memory Usage**: How much RAM is being used. 1800M out of 4096M total means the server is using about 1.8 GB out of 4 GB.
-- **Available**: Memory that can be used immediately by applications. This includes truly free memory PLUS memory used for caches that can be freed instantly.
-- **Swap Usage**: Swap is disk space used as overflow when RAM is full. Using swap is much slower than RAM. High swap usage means your server needs more RAM.
-
-**Understanding "Used" vs "Free" vs "Available" Memory on Linux:**
-
-Linux uses spare RAM to cache disk data (making your system faster). This can make it look like memory is almost full when it is actually fine. The key number is **available** memory — this is what your applications can actually use.
-
-| Term | What it means |
-|------|--------------|
-| **Used** | Memory actively used by applications |
-| **Free** | Memory not being used for anything (usually very low on a healthy Linux system) |
-| **Available** | Memory that can be given to apps immediately = Free + reclaimable cache |
-| **Buffers** | Memory holding disk block data temporarily |
-| **Cache** | Memory holding file contents to speed up future reads |
-| **Swap** | Disk space used when RAM was full (slow!) |
-
-#### Disk Section
-
-```
-[Disk]
-  [OK]   Mount: /  Size: 50G  Used: 20G  Avail: 28G  Usage: 42%
-  [WARN] Mount: /data  Size: 100G  Used: 83G  Avail: 12G  Usage: 85%
-```
-
-- **Mount**: The directory where this disk partition is attached (e.g., `/` is the root, `/data` is a separate data partition).
-- **Size**: Total capacity of the disk partition.
-- **Used/Avail**: How much is used and how much is free.
-- **Usage**: Percentage used. Above 80% triggers a warning; above 90% is critical.
-
-#### Network Section
-
-```
-[Network]
-  [OK]   Listening Ports: 5
-  Port List: 22 80 443 3306 8080
-  ESTABLISHED: 28
-```
-
-- **Listening Ports**: Services waiting for incoming connections. Common ports: 22 (SSH), 80 (HTTP), 443 (HTTPS), 3306 (MySQL), 8080 (alternative HTTP).
-- **ESTABLISHED**: Currently active connections. A very high number could mean a traffic spike or an attack.
-
-#### Process Section
-
-```
-[Process]
-  [OK]   Total Processes: 127
-  [OK]   No zombie processes
-
-[Top 5 CPU Processes]
-  nginx        root       2.3%  1.1%
-  mysqld       mysql      1.8%  4.2%
-```
-
-- **Total Processes**: How many programs are running. A typical server has 100-300.
-- **Zombie Processes**: Programs that have finished but their parent has not cleaned them up. They use no resources but a large number indicates a bug. Any zombie > 0 is a warning.
-- **Top 5 CPU/Memory Processes**: The biggest resource consumers, helping you quickly identify what is eating up your server.
-
-#### Docker Section
-
-```
-[Docker]
-  [OK]   Docker daemon is running
-  Running Containers: 3
-  Stopped Containers: 1
-  Images: 7
-```
-
-- **Docker daemon is running**: The Docker background service is active and ready.
-- **Running/Stopped Containers**: How many app containers are active vs. stopped.
-- **Images**: The number of container images stored on disk. Unused images waste disk space.
-
-### Individual Monitoring Commands
-
-Below are all the individual commands you can run to check specific parts of your server, with detailed explanations.
-
-#### CPU Monitoring
-
-**Check current CPU usage:**
+如果你的服务器还没装 Docker，按下面的步骤安装：
 
 ```bash
-# Show CPU usage percentages (user, system, idle)
-# "user" = time spent running application code
-# "system" = time spent running kernel code
-# "idle" = time the CPU was doing nothing
-top -bn1 | grep "Cpu(s)" | awk '{print "User: "$2", System: "$4", Idle: "$8}'
+# Ubuntu/Debian 安装 Docker
+sudo apt update                        # 更新软件包列表
+sudo apt install docker.io -y          # 安装 Docker
+sudo systemctl start docker            # 启动 Docker 服务
+sudo systemctl enable docker           # 设置开机自启
+
+# CentOS/RHEL 安装 Docker
+sudo yum install docker -y             # 安装 Docker
+sudo systemctl start docker            # 启动 Docker 服务
+sudo systemctl enable docker           # 设置开机自启
+
+# 验证 Docker 是否安装成功
+docker --version                       # 查看 Docker 版本
 ```
 
-**Expected output:**
+期望输出：
 
 ```
-User: 5.2, System: 2.1, Idle: 92.7
+Docker version 24.0.7, build afdd53b
 ```
 
-**Check CPU core count:**
+### 安装 Docker Compose
 
 ```bash
-# Display the number of CPU cores available
-# This tells you how many simultaneous tasks the server can handle
-nproc
+# 安装 Docker Compose
+sudo apt install docker-compose -y     # Ubuntu/Debian
+# 或者
+sudo yum install docker-compose -y     # CentOS/RHEL
+
+# 验证
+docker-compose --version               # 查看版本
 ```
 
-**Expected output:**
+期望输出：
 
 ```
+docker-compose version 1.29.2, build 5becea4c
+```
+
+---
+
+## 模块一：服务器监控与巡检
+
+这个模块教你如何"体检"你的服务器。就像人需要定期体检一样，服务器也需要定期检查各项指标是否正常。
+
+### 如何运行 health-check.sh
+
+巡检脚本有两种模式：
+
+```bash
+# 快速模式 — 只检查最关键的几项，1-2 秒出结果
+bash scripts/health-check.sh --quick
+
+# 完整模式 — 检查所有项目，输出详细报告，可能需要 10-30 秒
+bash scripts/health-check.sh
+
+# 只检查特定项目
+bash scripts/health-check.sh --only cpu,memory,disk
+```
+
+### 输出详解
+
+完整巡检报告包含以下部分，我们逐个解释：
+
+---
+
+### CPU 监控
+
+CPU 就是服务器的"大脑"，它负责处理所有计算任务。CPU 使用率越高，说明服务器越忙。
+
+#### 用大白话理解 CPU 指标
+
+| 指标 | 白话解释 |
+|------|---------|
+| CPU 使用率 | 大脑的忙碌程度。80% 就是 80% 的时间在干活 |
+| CPU 核心数 | 大脑有几个"处理器"。4 核 = 可以同时干 4 件事 |
+| 负载均值（Load Average） | 排队等大脑处理的任务数量。详见下方 |
+
+#### 负载均值是什么？
+
+负载均值有 3 个数字，比如 `0.5, 1.2, 2.0`，分别代表过去 **1 分钟、5 分钟、15 分钟**内，平均有多少个任务在排队等 CPU 处理。
+
+- 如果你的服务器是 **4 核**的，负载均值 `4.0` 表示刚好满载
+- 负载均值 `> 4.0` 表示有任务在排队等着，服务器处理不过来了
+- 负载均值 `< 4.0` 表示服务器还有余力
+
+**简单记忆：负载均值除以核心数，超过 1.0 就要注意了。**
+
+#### 查看命令和期望输出
+
+```bash
+# 查看 CPU 使用率（top 命令然后按 1 看每个核心）
+top -bn1 | head -5                      # 显示 CPU 概况
+
+# 查看 CPU 核心数
+nproc                                    # 输出核心数，比如: 4
+
+# 查看负载均值
+uptime                                   # 显示运行时间和负载
+```
+
+期望输出：
+
+```
+# top 输出
+top - 14:30:00 up 30 days,  2:15,  1 user,  load average: 0.52, 0.38, 0.29
+Tasks: 128 total,   2 running, 126 sleeping,   0 stopped,   0 zombie
+%Cpu(s): 23.5 us,  1.2 sy,  0.0 ni, 74.8 id,  0.3 wa,  0.2 hi,  0.0 si
+
+# nproc 输出
 4
+
+# uptime 输出
+ 14:30:00 up 30 days,  2:15, 1 user, load average: 0.52, 0.38, 0.29
 ```
 
-**Check load average:**
+解读：CPU 使用率 23.5%，4 核心，负载均值 0.52（4 核下远小于 4.0）——非常健康。
+
+---
+
+### 内存监控
+
+内存就是服务器的"工作台"。程序运行时需要把数据放在工作台上，工作台越大，能同时干的事越多。
+
+#### 用大白话理解内存指标
+
+| 指标 | 白话解释 |
+|------|---------|
+| 已用（used） | 工作台上正在放东西的地方 |
+| 空闲（free） | 工作台上完全没放东西的地方 |
+| 可用（available） | 真正还能用的空间 = 空闲 + 可以随时腾出来的缓存 |
+| 缓存（buff/cache） | 为了加快速度提前准备的东西，需要时可以腾出来 |
+
+**重点：判断内存够不够看"可用（available）"，不要只看"空闲（free）"！** 因为 Linux 会把空闲内存用来做缓存，所以 free 可能很小，但 available 还是够的。
+
+#### 查看命令和期望输出
 
 ```bash
-# Display the 1-minute, 5-minute, and 15-minute load averages
-# Three numbers: short-term, medium-term, long-term system load
-cat /proc/loadavg
+# 查看内存使用情况（-h 表示用人类可读的单位，比如 G/M）
+free -h                                  # 显示内存概况
 ```
 
-**Expected output:**
-
-```
-0.45 0.38 0.42 2/287 12345
-```
-
-The first three numbers (0.45, 0.38, 0.42) are the load averages. Compare them to your core count (from `nproc`). If load is consistently above your core count, the server is overloaded.
-
-**Per-core CPU usage:**
-
-```bash
-# Show CPU usage for each individual core
-# Requires the sysstat package: sudo apt install sysstat
-# The "1 1" means: sample every 1 second, do 1 sample
-mpstat -P ALL 1 1
-```
-
-**Expected output:**
-
-```
-Linux 5.15.0-91-generic (my-server)   04/14/2026  _x86_64_  (4 CPU)
-
-02:40:01 PM  CPU    %usr   %nice    %sys   %iowait    %irq   %soft  %steal  %guest  %gnice   %idle
-02:40:02 PM  all   5.25    0.00    2.10      0.25    0.00    0.10    0.00    0.00    0.00   92.30
-02:40:02 PM    0   8.00    0.00    3.00      0.00    0.00    0.50    0.00    0.00    0.00   88.50
-02:40:02 PM    1   4.00    0.00    1.50      0.50    0.00    0.00    0.00    0.00    0.00   94.00
-02:40:02 PM    2   6.00    0.00    2.00      0.00    0.00    0.00    0.00    0.00    0.00   92.00
-02:40:02 PM    3   3.00    0.00    2.00      0.50    0.00    0.00    0.00    0.00    0.00   94.50
-```
-
-**Top 10 CPU-consuming processes:**
-
-```bash
-# List the top 10 processes sorted by CPU usage (highest first)
-# Shows: user, PID, CPU%, MEM%, command
-ps aux --sort=-%cpu | head -11
-```
-
-**Expected output:**
-
-```
-USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-root      1234  8.5  2.1 123456 51200 ?        Ss   10:00   3:45 nginx: master process
-mysql     2345  5.2  8.3 987654 204800 ?       Sl   10:01   2:30 /usr/sbin/mysqld
-appuser   3456  3.1  5.5 567890 135168 ?       Sl   10:05   1:20 node app.js
-```
-
-#### Memory Monitoring
-
-**Memory overview (in megabytes):**
-
-```bash
-# Display memory usage in megabytes
-# "total" = all RAM installed
-# "used" = RAM currently in use by applications
-# "free" = completely unused RAM (often low on Linux because Linux uses spare RAM for cache)
-# "available" = RAM that can be given to apps right now (this is the important number!)
-free -m
-```
-
-**Expected output:**
+期望输出：
 
 ```
               total        used        free      shared  buff/cache   available
-Mem:           4096        1800         200         128        2096        2100
-Swap:          2048          48        2000
+Mem:          7.8Gi       3.2Gi       1.5Gi       256Mi       3.1Gi       4.1Gi
+Swap:         2.0Gi          0B       2.0Gi
 ```
 
-**Detailed memory info:**
+解读：
+- 总共 7.8G 内存，已用 3.2G
+- 看起来空闲只有 1.5G，但 available 有 4.1G——因为 3.1G 的缓存可以随时腾出来
+- **实际可用 = 4.1G，很充裕**
+
+#### 什么是 Swap？
+
+Swap 就是在磁盘上划出一块区域当"备用工作台"。当内存不够用时，系统把暂时不用的数据从内存挪到磁盘的 Swap 里。但磁盘比内存慢很多，所以如果 Swap 用得多，服务器就会变慢。
 
 ```bash
-# Show the first 20 lines of detailed memory statistics from the kernel
-# This includes things like buffer sizes, cache sizes, slab memory, etc.
-cat /proc/meminfo | head -20
+# 查看 Swap 使用详情
+swapon --show                            # 显示 Swap 设备信息
 ```
 
-**Expected output:**
+---
 
-```
-MemTotal:         4194304 kB
-MemFree:           204800 kB
-MemAvailable:     2150400 kB
-Buffers:           102400 kB
-Cached:           1996800 kB
-SwapCached:          4096 kB
-Active:           1800000 kB
-Inactive:         1600000 kB
-...
-```
+### 磁盘监控
 
-**Top 10 memory-consuming processes:**
+磁盘就是服务器的"仓库"，所有文件、数据都存在这里。仓库满了就没法存东西了，程序也会出错。
+
+#### 用大白话理解磁盘指标
+
+| 指标 | 白话解释 |
+|------|---------|
+| 使用率 | 仓库已经用了多少 |
+| Inode 使用率 | 仓库里"货位编号"用了多少。即使仓库还有空间，货位编号用完也存不了东西 |
+| 大目录 | 哪些文件夹占的空间最多 |
+| I/O | 磁盘的读写速度 |
+
+#### 查看磁盘使用率
 
 ```bash
-# List the top 10 processes sorted by memory usage (highest first)
-ps aux --sort=-%mem | head -11
+# 查看各分区的磁盘使用率（-h 表示人类可读单位）
+df -h                                    # 显示所有分区的使用情况
 ```
 
-**Expected output:**
+期望输出：
 
 ```
-USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
-mysql     2345  5.2  8.3 987654 204800 ?       Sl   10:01   2:30 /usr/sbin/mysqld
-appuser   3456  3.1  5.5 567890 135168 ?       Sl   10:05   1:20 node app.js
-root      4567  0.5  3.2 345678  78600 ?       S    10:10   0:15 python3 worker.py
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sda1        50G   22G   26G  46% /
+/dev/sda2       200G   80G  120G  40% /data
+tmpfs           3.9G     0  3.9G   0% /dev/shm
 ```
 
-**Continuously watch memory (updates every 2 seconds):**
+解读：`/` 分区用了 46%，`/data` 分区用了 40%——都正常。
+
+#### 查看 Inode 使用率
 
 ```bash
-# Watch memory usage in real-time, refreshing every 2 seconds
-# Press Ctrl+C to stop
-watch -n2 free -m
+# 查看 Inode 使用率（-i 参数显示 inode 信息）
+df -i                                    # 显示 Inode 使用情况
 ```
 
-#### Disk Monitoring
+期望输出：
 
-**Disk usage overview (excluding virtual filesystems):**
+```
+Filesystem       Inodes   IUsed    IFree IUse% Mounted on
+/dev/sda1       3200000  120000  3080000    4% /
+/dev/sda2      12800000  500000 12300000    4% /data
+```
+
+解读：Inode 使用率只有 4%，远不用担心。
+
+#### 查看大目录
 
 ```bash
-# Show disk usage for real partitions only
-# "-h" = human-readable sizes (GB/MB instead of bytes)
-# "-T" = show filesystem type (ext4, xfs, etc.)
-# "-x tmpfs -x devtmpfs" = exclude virtual memory filesystems
-df -hT -x tmpfs -x devtmpfs
+# 查看根目录下各文件夹占用空间（--max-depth=1 只看第一层）
+du -h --max-depth=1 /                    # 显示各目录大小
 ```
 
-**Expected output:**
+期望输出：
 
 ```
-Filesystem     Type      Size  Used Avail Use% Mounted on
-/dev/sda1      ext4       50G   20G   28G  42% /
-/dev/sda2      ext4      100G   83G   12G  85% /data
-/dev/sdb1      xfs       500G  120G  380G  24% /backup
+1.2G    /var
+5.8G    /usr
+3.2G    /home
+256M    /tmp
+12K     /root
+22G     /
 ```
 
-**Inode usage (important!):**
+#### 查看磁盘 I/O
 
 ```bash
-# Show inode (file metadata) usage for each partition
-# Even if disk space is free, running out of inodes means you cannot create new files
-# This can happen with millions of tiny files
-df -i -x tmpfs -x devtmpfs
+# 查看磁盘 I/O 状况（需要安装 sysstat）
+iostat -x 1 3                            # 每秒刷新一次，共刷新 3 次
 ```
 
-**Expected output:**
-
-```
-Filesystem      Inodes  IUsed   IFree IUse% Mounted on
-/dev/sda1      3200000  45000 3155000    2% /
-/dev/sda2      6400000 120000 6280000    2% /data
-```
-
-**Find the 10 largest directories under a path:**
-
-```bash
-# Calculate disk usage of all files/dirs under /path and show the top 10 largest
-# "2>/dev/null" hides "permission denied" errors
-# Replace /path with the directory you want to check, e.g., /var/log or /home
-du -ah /path 2>/dev/null | sort -rh | head -10
-```
-
-**Expected output:**
-
-```
-25G     /var/log
-15G     /var/log/nginx
-12G     /var/log/nginx/access.log
-8G     /var/lib/mysql
-5G     /var/lib/docker
-3G     /var/cache
-```
-
-**Mount details:**
-
-```bash
-# Show all mounted filesystems in a tree layout
-# Useful to see which disks are attached where
-findmnt
-```
-
-**Disk I/O statistics:**
-
-```bash
-# Show disk input/output statistics
-# "-xz" = extended stats, show devices that are idle
-# "1 3" = sample every 1 second, do 3 samples
-# Requires sysstat package
-iostat -xz 1 3
-```
-
-**Expected output:**
+期望输出：
 
 ```
 Linux 5.15.0-91-generic (my-server)   04/14/2026  _x86_64_ (4 CPU)
 
-avg-cpu:  %user   %nice    %sys   %iowait    %steal   %idle
-           5.25    0.00    2.10      0.25      0.00   92.40
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+           5.23    0.00    1.52    0.08    0.00   93.17
 
-Device            r/s     w/s     rMB/s     wMB/s   rrqm/s   wrqm/s  %util
-sda             10.50    5.20      0.12      0.05     0.10     0.50   1.20
-sdb              2.30    1.10      0.03      0.01     0.00     0.10   0.30
+Device:         rrqm/s   wrqm/s     r/s     w/s    rMB/s    wMB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
+sda               0.00     2.50    1.00    5.00     0.01     0.03    16.00     0.02    3.33    2.00    3.60   1.67   1.00
 ```
 
-- **%util**: The percentage of time the disk was busy. Above 80-90% means the disk is a bottleneck.
-- **r/s, w/s**: Read and write operations per second.
-- **rMB/s, wMB/s**: Data read and written per second in MB.
+解读：`%iowait` 只有 0.08%，`%util` 只有 1%——磁盘完全不忙。
 
-#### Network Monitoring
+---
 
-**Show all listening TCP ports:**
+### 网络监控
+
+网络就是服务器的"通讯工具"，通过它和外部世界交流。
+
+#### 用大白话理解网络指标
+
+| 指标 | 白话解释 |
+|------|---------|
+| 监听端口 | 服务器上哪些"窗口"在对外服务（80 = 网页, 22 = SSH） |
+| 连接数 | 当前有多少人正在和服务器通讯 |
+| 带宽 | 网络通道的宽窄程度，越宽传输越快 |
+| Top IP | 哪些 IP 地址访问最多，用于发现异常访问 |
+
+#### 查看监听端口
 
 ```bash
-# List all TCP ports that have a service listening on them
-# "-t" = TCP, "-l" = listening, "-n" = numeric (no DNS lookup), "-p" = show process
-ss -tlnp
+# 查看所有正在监听的端口（-t 表示 TCP，-l 表示监听，-n 表示显示数字不用域名）
+ss -tlnp                                 # 显示所有 TCP 监听端口
 ```
 
-**Expected output:**
+期望输出：
 
 ```
 State    Recv-Q   Send-Q     Local Address:Port    Peer Address:Port   Process
-LISTEN   0        128              0.0.0.0:22           0.0.0.0:*       users:(("sshd",pid=1234,fd=3))
-LISTEN   0        511              0.0.0.0:80           0.0.0.0:*       users:(("nginx",pid=2345,fd=6))
-LISTEN   0        511              0.0.0.0:443          0.0.0.0:*       users:(("nginx",pid=2345,fd=7))
-LISTEN   0        128              0.0.0.0:3306         0.0.0.0:*       users:(("mysqld",pid=3456,fd=10))
-LISTEN   0        128                 [::]:8080            [::]:*       users:(("node",pid=4567,fd=12))
+LISTEN   0        128        0.0.0.0:22           0.0.0.0:*
+LISTEN   0        128        0.0.0.0:80           0.0.0.0:*
+LISTEN   0        128        0.0.0.0:443          0.0.0.0:*
+LISTEN   0        511        127.0.0.1:9000       0.0.0.0:*
 ```
 
-**Network connection statistics:**
+解读：22（SSH）、80（HTTP）、443（HTTPS）端口在监听，9000 只在本机监听——都正常。
+
+#### 查看连接数
 
 ```bash
-# Show summary of all network connections by state
-ss -s
+# 查看当前网络连接数
+ss -s                                    # 显示连接数摘要
 ```
 
-**Expected output:**
+期望输出：
 
 ```
-Total: 150
-TCP:   28 (estab 25, closed 2, orphaned 0, timewait 1)
-Transport Total   IP        IPv6
-RAW       0       0         0
-UDP       3       2         1
-TCP       26      22        4
-INET      29      24        5
+Total: 256
+TCP:   12 (estab 8, closed 2, orphaned 0, timewait 2)
 ```
 
-**Connection count by state:**
+解读：共 256 个连接，8 个已建立——正常。
+
+#### 查看带宽使用
 
 ```bash
-# Count how many connections are in each TCP state
-# ESTABLISHED = active connection
-# TIME-WAIT = connection that just closed, waiting to clean up
-# CLOSE-WAIT = remote side closed, local app has not — often a bug
-ss -ant | awk '{print $1}' | sort | uniq -c | sort -rn
+# 查看网络接口流量（需要安装 iftop 或 nload）
+# 方法 1：查看网卡统计
+cat /proc/net/dev                        # 显示各网卡收发数据量
+
+# 方法 2：用 nload 实时看带宽（需安装）
+nload                                    # 实时显示网络流量
 ```
 
-**Expected output:**
-
-```
-     25 ESTAB
-      5 TIME-WAIT
-      3 CLOSE-WAIT
-      2 LISTEN
-```
-
-**Network interface traffic stats:**
+#### 查看 Top IP
 
 ```bash
-# Show RX (received) and TX (transmitted) bytes/packets for eth0
-# Useful to see how much data is flowing through an interface
-ip -s link show eth0
+# 查看当前连接数最多的 IP（netstat 版本）
+netstat -ntu | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn | head -10
+# 解释：netstat 输出连接信息 → awk 取第5列（IP:端口）→ cut 去掉端口 → 排序 → 统计 → 按次数倒排 → 取前10
 ```
 
-**Expected output:**
+期望输出：
 
 ```
-3: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
-    link/ether 00:1a:2b:3c:4d:5e brd ff:ff:ff:ff:ff:ff
-    RX:  bytes  packets  errors  dropped overrun mcast
-         1.2GB   950000   0       0       0       0
-    TX:  bytes  packets  errors  dropped carrier collsns
-         800MB   620000   0       0       0       0
+     28 192.168.1.100
+     12 10.0.0.5
+      8 172.16.0.50
+      3 203.0.113.42
 ```
 
-**Top 10 IPs by connection count:**
+解读：192.168.1.100 连接最多（28 个），如果某个不认识的 IP 有几百上千连接，可能是攻击。
+
+---
+
+### 进程监控
+
+进程就是正在运行的程序。就像公司里的员工，有的在干活，有的在摸鱼，有的已经离职但手续没办完（僵尸进程）。
+
+#### 用大白话理解进程指标
+
+| 指标 | 白话解释 |
+|------|---------|
+| 僵尸进程 | 程序已经死了但"尸体"没被清理，占着编号不干活。少量没事，多了要关注 |
+| 文件句柄 | 一个进程同时打开了多少个文件。有上限，超了就打不开了 |
+| 资源消耗 Top | 哪些进程最"费钱"（最占 CPU 或内存） |
+
+#### 查看僵尸进程
 
 ```bash
-# Show which remote IP addresses have the most connections to your server
-# Useful for spotting attacks (one IP with thousands of connections)
-ss -nt | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn | head -10
+# 查看是否有僵尸进程（状态为 Z 的进程就是僵尸）
+ps aux | awk '$8 ~ /Z/ {print}'          # 找出所有僵尸进程
 ```
 
-**Expected output:**
+期望输出：
 
 ```
-     45 192.168.1.50
-     12 10.0.0.100
-      8 203.0.113.42
-      5 172.16.0.25
-      2 198.51.100.10
+（如果没有僵尸进程，这里什么都没有）
 ```
 
-**Real-time bandwidth monitoring (requires iftop):**
+如果有僵尸进程，输出类似：
+
+```
+user  1234  0.0  0.0   0   0 ?  Z  14:30  0:00 [my-app] <defunct>
+```
+
+#### 查看文件句柄
 
 ```bash
-# Show real-time network bandwidth usage by connection
-# Press "q" to quit
-# Requires: sudo apt install iftop
-sudo iftop -i eth0
+# 查看系统文件句柄使用情况
+cat /proc/sys/fs/file-nr                 # 显示：已分配  未使用  最大值
 ```
 
-#### Process Monitoring
+期望输出：
 
-**Show full process tree:**
+```
+1024    0       1048576
+```
+
+解读：已分配 1024，最大允许 1048576，使用率不到 0.1%——非常安全。
+
+#### 查看资源消耗 Top
 
 ```bash
-# Display all running processes in a tree format
-# Shows parent-child relationships so you can see which process started which
-ps auxf
+# 查看 CPU 占用最高的 10 个进程
+ps aux --sort=-%cpu | head -11           # 按CPU使用率倒排，取前10
+
+# 查看内存占用最高的 10 个进程
+ps aux --sort=-%mem | head -11           # 按内存使用率倒排，取前10
 ```
 
-**Find zombie processes:**
-
-```bash
-# Zombie processes are dead but their entry remains in the process table
-# The "Z" state means zombie. Any zombie is a potential problem.
-ps aux | awk '$8=="Z"'
-```
-
-**Expected output (if zombies exist):**
+期望输出：
 
 ```
-user      5678  0.0  0.0      0     0 ?        Z    10:00   0:00 [myapp] <defunct>
-```
-
-**Processes with the most open file handles:**
-
-```bash
-# Count open files per process — too many open files can cause "Too many open files" errors
-lsof 2>/dev/null | awk '{print $1}' | sort | uniq -c | sort -rn | head -10
-```
-
-**Expected output:**
-
-```
-    450 nginx
-    320 mysqld
-    180 node
-    150 python3
-     50 sshd
-```
-
-**System-wide open file handle count:**
-
-```bash
-# Show total open file handles and the system limit
-# Format: open_handles  unused_handles  max_handles
-cat /proc/sys/fs/file-nr
-```
-
-**Expected output:**
-
-```
-1024    0       65536
-```
-
-If the first number approaches the third number, your system may run out of file handles. Increase the limit with `sysctl -w fs.file-max=100000`.
-
-**Detailed per-process resource monitoring:**
-
-```bash
-# Watch a specific process's CPU and memory usage over time
-# Replace <PID> with the actual process ID number
-# "1 5" means: sample every 1 second, do 5 samples
-# Requires sysstat package
-pidstat -p <PID> 1 5
+USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root      1001 15.2  2.1 123456 34567 ?        Sl   14:00  10:23 /usr/bin/nginx
+mysql     2002  8.5 12.3 456789 98765 ?        Sl   13:00  30:45 /usr/sbin/mysqld
+root      3003  2.1  0.5  67890  8765 ?        Ss   12:00   1:23 /usr/sbin/sshd
 ```
 
 ---
 
-## Module 2: Log Analysis & Troubleshooting
+## 模块二：日志分析与故障排查
 
-### What Are Logs and Why Do They Matter?
+### 什么是日志？为什么重要？
 
-Logs are text files where your server and applications record everything that happens: who connected, what errors occurred, when services started or stopped, and much more. Think of logs as a detailed diary of your server's life.
+日志就是服务器的"日记本"。服务器每天干了什么、出了什么错，都会记录在日志里。当服务器出了问题，查日志就像看日记一样，能帮你找到原因。
 
-When something goes wrong — a website returns an error, a service crashes, the server becomes slow — logs are almost always the first place to look for answers. They tell you **what** happened, **when** it happened, and often **why**.
+**打个比方**：如果服务器是一个餐厅，日志就是监控录像。菜上慢了？看录像找原因。客人投诉了？看录像回放。
 
-### System Logs with journalctl
+### 系统日志（journalctl）
 
-On modern Linux systems that use systemd (most do), `journalctl` is the primary tool for viewing system logs.
-
-```bash
-# Show the last 50 system log entries
-# "--no-pager" prevents the output from pausing page by page
-journalctl -n 50 --no-pager
-```
-
-**Expected output:**
-
-```
-Apr 14 14:30:01 my-server systemd[1]: Started Session 123 of user root.
-Apr 14 14:30:05 my-server sshd[5678]: Accepted publickey for root from 192.168.1.50 port 54322
-Apr 14 14:31:00 my-server CRON[6789]: (root) CMD (/usr/local/bin/backup.sh)
-Apr 14 14:35:12 my-server nginx[2345]: 192.168.1.100 - "GET /api/health" 200
-```
-
-**Filter by time range:**
+`journalctl` 是 Linux 系统的"超级日记本"，记录了系统上几乎所有发生的事。
 
 ```bash
-# Show logs from a specific date range
+# 查看所有日志（最近的在最后，太多，一般不看全部）
+journalctl                                # 显示所有系统日志
+
+# 查看最近的 50 条日志（-n 50 表示最后 50 条）
+journalctl -n 50                          # 显示最近 50 条日志
+
+# 实时跟踪日志（像 tail -f 一样持续显示新日志）
+journalctl -f                             # 持续显示新产生的日志，Ctrl+C 退出
+
+# 查看某个服务的日志（比如 nginx）
+journalctl -u nginx                       # 显示 nginx 服务相关日志
+
+# 查看今天的日志（--since 指定时间）
+journalctl --since today                  # 只显示今天的日志
+
+# 查看最近 1 小时的日志
+journalctl --since "1 hour ago"           # 显示最近1小时日志
+
+# 查看某个时间段的日志
 journalctl --since "2026-04-14 10:00" --until "2026-04-14 12:00"
+# 显示 4月14日 10:00 到 12:00 之间的日志
+
+# 只看错误级别的日志（-p err 表示 error 级别）
+journalctl -p err                          # 只显示错误日志
+
+# 查看内核日志（内核是操作系统的核心）
+journalctl -k                              # 只显示内核相关日志
+
+# 查看某个进程的日志（用 PID 号）
+journalctl _PID=1234                       # 显示 PID 为 1234 的进程日志
 ```
 
-**Filter by priority level:**
+### 常见日志路径表
+
+除了 journalctl，很多程序有自己的日志文件：
+
+| 路径 | 里面记的是什么 |
+|------|--------------|
+| `/var/log/syslog` | 系统总日志（Ubuntu/Debian） |
+| `/var/log/messages` | 系统总日志（CentOS/RHEL） |
+| `/var/log/auth.log` | 登录认证日志（谁登录了、谁登录失败了） |
+| `/var/log/nginx/access.log` | Nginx 访问日志（谁访问了你的网站） |
+| `/var/log/nginx/error.log` | Nginx 错误日志 |
+| `/var/log/mysql/error.log` | MySQL 数据库错误日志 |
+| `/var/log/dpkg.log` | 软件安装/卸载日志（Ubuntu/Debian） |
+| `/var/log/yum.log` | 软件安装/卸载日志（CentOS/RHEL） |
+| `/var/log/cron` | 定时任务执行日志 |
+| `/var/log/lastlog` | 所有用户最后登录时间 |
+| `/var/log/wtmp` | 所有登录记录 |
+| `/var/log/faillog` | 登录失败记录 |
+
+### 如何搜索日志
+
+#### grep — 在文件里找关键词
 
 ```bash
-# Show only error-level and worse messages from the last hour
-# Priority levels: 0=emerg, 1=alert, 2=crit, 3=err, 4=warning, 5=notice, 6=info, 7=debug
-journalctl -p err --since "1 hour ago"
+# 在日志里搜"error"这个词
+grep "error" /var/log/syslog              # 搜索包含 error 的行
+
+# 忽略大小写搜索（-i 参数，Error ERROR error 都能搜到）
+grep -i "error" /var/log/syslog           # 忽略大小写搜索 error
+
+# 显示匹配行的行号（-n 参数）
+grep -n "error" /var/log/syslog           # 显示行号
+
+# 显示匹配行前后各 2 行（-C 2 参数，方便看上下文）
+grep -C 2 "error" /var/log/syslog         # 显示上下文
+
+# 统计匹配到多少行（-c 参数）
+grep -c "error" /var/log/syslog           # 只显示匹配行数
+
+# 反向搜索——找不包含某个词的行（-v 参数）
+grep -v "debug" /var/log/syslog           # 排除包含 debug 的行
+
+# 在多个文件中搜索
+grep "error" /var/log/nginx/*.log         # 搜索所有 Nginx 日志
 ```
 
-**Expected output:**
-
-```
-Apr 14 14:15:03 my-server mysqld[2345]: InnoDB: Cannot allocate memory for the buffer pool
-Apr 14 14:20:45 my-server nginx[3456]: connect() failed (111: Connection refused) while connecting to upstream
-```
-
-**Filter by service:**
+#### awk — 提取和分析日志的列
 
 ```bash
-# Show logs for a specific service from the last hour
-journalctl -u nginx.service --since "1 hour ago"
+# 提取 Nginx 日志的第 1 列（IP 地址）
+awk '{print $1}' /var/log/nginx/access.log     # 提取第一列
+
+# 统计每个 IP 出现次数，找出访问最多的 IP
+awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10
+# 解释：提取IP → 排序 → 统计次数 → 按次数倒排 → 取前10
 ```
 
-**Follow logs in real-time:**
+期望输出：
+
+```
+   1250 192.168.1.100
+    890 10.0.0.5
+    456 172.16.0.50
+    234 203.0.113.42
+    123 198.51.100.1
+```
+
+### Nginx 日志分析示例
+
+Nginx 是最常用的网页服务器之一，分析它的日志非常有用。
+
+#### 按状态码统计
 
 ```bash
-# Watch new log entries as they appear (like "tail -f")
-# Press Ctrl+C to stop
-journalctl -f
-```
-
-**View kernel error and warning messages:**
-
-```bash
-# Show kernel-level error and warning messages with human-readable timestamps
-# "-T" = timestamp, "-l err,warn" = filter by level
-dmesg -T -l err,warn | tail -20
-```
-
-**Expected output:**
-
-```
-[Apr14 14:10] EXT4-fs warning: mounted filesystem with errors, running e2fsck recommended
-[Apr14 14:12] out of memory: kill process 3456 (node) score 500
-```
-
-### Common Log File Paths
-
-Not all logs go through journalctl. Many applications write to their own log files.
-
-| Service | Log Path | What it contains |
-|---------|----------|-----------------|
-| System (Debian/Ubuntu) | `/var/log/syslog` | General system messages |
-| System (CentOS/RHEL) | `/var/log/messages` | General system messages |
-| Authentication (Debian/Ubuntu) | `/var/log/auth.log` | Login attempts, sudo usage |
-| Authentication (CentOS/RHEL) | `/var/log/secure` | Login attempts, sudo usage |
-| Nginx access | `/var/log/nginx/access.log` | All HTTP requests |
-| Nginx errors | `/var/log/nginx/error.log` | HTTP errors and server issues |
-| MySQL | `/var/log/mysql/error.log` | Database errors |
-| PostgreSQL | `/var/log/postgresql/` | Database logs (directory) |
-| Docker | `journalctl -u docker.service` | Docker daemon logs |
-| Application (common) | `/var/log/app/` or `/opt/app/logs/` | Custom application logs |
-
-### Searching Logs with grep and awk
-
-**Search for a keyword across all log files:**
-
-```bash
-# Search for the word "ERROR" in all .log files under /var/log/
-# "-r" = recursive (search subdirectories), "-n" = show line numbers
-# "tail -20" = show only the last 20 results (log files can be huge)
-grep -rn "ERROR" /var/log/ --include="*.log" | tail -20
-```
-
-**Expected output:**
-
-```
-/var/log/nginx/error.log:45:2026/04/14 14:30:05 [error] connect() failed (111: Connection refused)
-/var/log/app/app.log:128:2026-04-14 14:35:12 ERROR Database connection timeout
-```
-
-**Search logs within a time range (using awk):**
-
-```bash
-# Print all log lines between two timestamps
-# Works when the log file has timestamps at the start of each line
-# Replace the timestamps with your actual time range
-awk '/2026-04-14 10:00/,/2026-04-14 11:00/' /var/log/app/app.log
-```
-
-**Count error types by hour:**
-
-```bash
-# Extract the hour from ERROR lines and count how many errors per hour
-# "-F'[: ]'" = split on colons and spaces, so $1 is the date, $2 is the hour
-grep "ERROR" /var/log/app.log | awk -F'[: ]' '{print $1" "$2":00"}' | sort | uniq -c | sort -rn | head -10
-```
-
-**Expected output:**
-
-```
-     45 2026-04-14 14:00
-     32 2026-04-14 10:00
-     12 2026-04-14 09:00
-```
-
-### Nginx Log Analysis Examples
-
-Nginx access logs follow a standard format. Here are practical analysis commands.
-
-**HTTP status code distribution:**
-
-```bash
-# Count how many requests resulted in each HTTP status code
-# $9 in the default combined log format is the status code (200, 404, 500, etc.)
+# 统计各种 HTTP 状态码出现次数
 awk '{print $9}' /var/log/nginx/access.log | sort | uniq -c | sort -rn
+# 解释：提取第9列（状态码）→ 排序 → 统计 → 按次数倒排
 ```
 
-**Expected output:**
+期望输出：
 
 ```
-   4500 200     # OK — successful requests
-    300 304     # Not Modified — cached responses
-    150 404     # Not Found — missing pages/files
-     50 500     # Internal Server Error — server-side bugs
-     20 301     # Moved Permanently — redirects
+   8500 200     # 200 = 正常访问
+    320 304     # 304 = 缓存命中
+    150 404     # 404 = 页面不存在
+     30 500     # 500 = 服务器内部错误
+     12 502     # 502 = 网关错误
+      5 503     # 503 = 服务不可用
 ```
 
-**Find slow requests (over 5 seconds):**
+**状态码解释**：
+- `200`：一切正常
+- `301/302`：跳转了
+- `304`：浏览器缓存还是新的，不用重新传
+- `400`：客户端请求有问题
+- `401`：没权限，需要登录
+- `403`：禁止访问
+- `404`：页面不存在
+- `500`：服务器内部出错了
+- `502`：网关/代理出错了
+- `503`：服务器太忙或正在维护
+
+#### 找慢请求
 
 ```bash
-# Show requests that took more than 5 seconds to respond
-# $NF (last field) in the default format is the response time in seconds
-# "tail -20" shows the most recent 20 slow requests
-awk '$NF > 5 {print $0}' /var/log/nginx/access.log | tail -20
+# 找出响应时间超过 5 秒的请求（假设日志格式包含请求时间）
+awk '$NF > 5 {print $0}' /var/log/nginx/access.log | head -20
+# 解释：$NF 是最后一列（请求时间），大于 5 秒的打印出来
 ```
 
-**Expected output:**
-
-```
-192.168.1.100 - - [14/Apr/2026:14:30:05 +0000] "GET /api/heavy-query" 200 12345 "-" "Mozilla/5.0" 8.5
-10.0.0.50 - - [14/Apr/2026:14:32:10 +0000] "POST /api/upload" 200 54321 "-" "curl/7.68" 6.2
-```
-
-**Top 20 IPs by request count (spot attacks or heavy users):**
+#### 找访问最多的 IP
 
 ```bash
-# Count how many requests came from each IP address
-# A single IP with thousands of requests may be a bot or attacker
-awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -20
+# 统计访问最多的 Top 10 IP
+awk '{print $1}' /var/log/nginx/access.log | sort | uniq -c | sort -rn | head -10
 ```
 
-**Expected output:**
+### 7 步故障排查工作流
 
-```
-   8500 192.168.1.100     # This IP has way more requests than others — investigate!
-    450 10.0.0.50
-    320 203.0.113.42
-    150 172.16.0.25
-```
+当服务器出问题时，按这 7 步走：
 
-### 7-Step Troubleshooting Workflow
+#### 第 1 步：确认问题
 
-When something goes wrong, follow this systematic approach instead of guessing randomly.
-
-#### Step 1: Get the Big Picture
+先搞清楚到底出了什么问题。
 
 ```bash
-# Run the full health check to see the overall server state
-bash scripts/health-check.sh --full
+# 问自己几个问题：
+# - 什么出了问题？（网页打不开？数据库连不上？）
+# - 什么时候开始的？
+# - 有没有改过什么配置？
+echo "先确认问题现象，不要急于动手"
 ```
 
-This tells you at a glance if CPU, memory, disk, or network is under stress. Start here before diving into details.
+#### 第 2 步：检查系统资源
 
-#### Step 2: Check Recent Errors
+看看 CPU、内存、磁盘有没有满。
 
 ```bash
-# Look for error-level system messages from the last hour
-journalctl -p err --since "1 hour ago"
+# 一键查看基本资源
+echo "=== CPU ===" && top -bn1 | head -5          # CPU 概况
+echo "=== 内存 ===" && free -h                     # 内存概况
+echo "=== 磁盘 ===" && df -h                       # 磁盘概况
 ```
 
-This reveals if any service crashed, if the kernel reported problems, or if hardware is failing.
+#### 第 3 步：查看最近日志
 
-#### Step 3: Check the Specific Service's Logs
+看看系统日志里有没有错误。
 
 ```bash
-# Look at logs for the service that is having trouble
-# Replace "nginx.service" with your service name
-journalctl -u nginx.service --since "30 min ago"
+# 查看最近的错误日志
+journalctl -p err -n 50                           # 最近50条错误日志
 ```
 
-Service-specific logs usually contain the exact error message explaining what went wrong.
+#### 第 4 步：检查服务状态
 
-#### Step 4: Identify Resource Bottlenecks
+看看相关服务是否在运行。
 
 ```bash
-# Check CPU usage in real-time (press "q" to quit)
-top
-
-# Check disk I/O bottlenecks (requires iotop, press "q" to quit)
-sudo iotop
-
-# Check network bandwidth (requires iftop, press "q" to quit)
-sudo iftop -i eth0
+# 检查服务状态（以 nginx 为例）
+systemctl status nginx                            # 查看 nginx 状态
 ```
 
-If one resource (CPU, disk I/O, or network) is maxed out, that is your bottleneck.
+#### 第 5 步：检查网络
 
-#### Step 5: Check Disk Space
+看看网络是否通畅。
 
 ```bash
-# Make sure no disk partition is full
-df -h
+# 检查网络
+ping -c 3 8.8.8.8                                # 测试外网是否通（3次）
+curl -I http://localhost                          # 测试本机网页是否响应
+ss -tlnp                                         # 检查端口是否在监听
 ```
 
-A full disk causes all kinds of mysterious failures: services cannot write logs, databases cannot save data, Docker cannot create containers.
+#### 第 6 步：检查配置
 
-#### Step 6: Check File Handles
+看看最近有没有改过配置文件。
 
 ```bash
-# See how many file handles are open vs. the system limit
-cat /proc/sys/fs/file-nr
-
-# Count total open files
-lsof 2>/dev/null | wc -l
+# 查看最近修改过的配置文件
+find /etc -name "*.conf" -mtime -7 -ls            # 7天内修改过的 .conf 文件
 ```
 
-Running out of file handles causes "Too many open files" errors, which crash services.
+#### 第 7 步：定位并修复
 
-#### Step 7: Test Network Connectivity
+根据以上线索，找到问题并修复。
 
 ```bash
-# Test if a URL is reachable (replace with your actual URL)
-curl -v https://example.com
-
-# Test if a specific port is open on a remote host
-# Replace with the host and port you need to check
-telnet db-server 3306
-
-# Trace the network path to a host (see where packets get stuck)
-traceroute example.com
+# 常见修复操作
+systemctl restart nginx                           # 重启服务
+vim /etc/nginx/nginx.conf                         # 修改配置
+systemctl reload nginx                            # 重载配置（不中断服务）
 ```
 
-Network issues can be caused by firewalls, DNS problems, or network outages between your server and the destination.
+### 实际故障排查场景
 
-### Real-World Troubleshooting Scenarios
-
-**Scenario: "My website is returning 502 Bad Gateway"**
-
-This usually means the web server (Nginx) cannot reach the application behind it.
+#### 场景 1：服务器变慢了
 
 ```bash
-# Step 1: Is the app process running?
-pgrep -af node           # Check if Node.js app is running
-pgrep -af python         # Check if Python app is running
-pgrep -af php-fpm        # Check if PHP-FPM is running
+# 第 1 步：看 CPU
+top -bn1 | head -15                                # 看谁在占 CPU
 
-# Step 2: Check Nginx error log for the specific error
-tail -50 /var/log/nginx/error.log
+# 第 2 步：看内存
+free -h                                            # 看内存够不够
 
-# Step 3: Is the app listening on the expected port?
-ss -tlnp | grep 8080    # Replace 8080 with your app's port
+# 第 3 步：看磁盘 I/O
+iostat -x 1 3                                     # 看磁盘忙不忙
 
-# Step 4: Restart the app if it crashed
-systemctl restart your-app.service
+# 第 4 步：看是不是 Swap 用多了
+free -h | grep Swap                               # Swap 用了多少
 ```
 
-**Scenario: "Database connection refused"**
+#### 场景 2：磁盘满了
 
 ```bash
-# Is MySQL running?
-systemctl status mysql
+# 第 1 步：看哪个分区满了
+df -h                                              # 找到 100% 的分区
 
-# Is it listening on the right port?
-ss -tlnp | grep 3306
+# 第 2 步：找大文件
+du -h --max-depth=1 / | sort -rh | head -10       # 找最大的目录
 
-# Check MySQL error log
-tail -50 /var/log/mysql/error.log
+# 第 3 步：找被删了但还在占空间的文件
+lsof +L1                                           # 找被删但未释放的文件
 
-# Can the app server reach the database?
-telnet db-server 3306
+# 第 4 步：清理日志
+journalctl --vacuum-size=200M                      # 只保留 200M 日志
 ```
 
-**Scenario: "SSH connection refused"**
+#### 场景 3：服务挂了
 
 ```bash
-# Is sshd running?
-systemctl status sshd
+# 第 1 步：看服务状态
+systemctl status nginx                             # 看 nginx 状态
 
-# Is the firewall blocking port 22?
-ufw status              # Ubuntu
-firewall-cmd --list-all # CentOS
+# 第 2 步：看服务日志
+journalctl -u nginx -n 50 --no-pager               # 看 nginx 最近日志
 
-# Check sshd log for errors
-journalctl -u sshd --since "1 hour ago"
+# 第 3 步：看配置有没有错
+nginx -t                                           # 测试 nginx 配置是否正确
+
+# 第 4 步：重启服务
+systemctl restart nginx                            # 重启 nginx
+```
+
+#### 场景 4：网络异常
+
+```bash
+# 第 1 步：看网络连接数
+ss -s                                              # 连接数概况
+
+# 第 2 步：看连接最多的 IP
+ss -ntu | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn | head -10
+
+# 第 3 步：看某个 IP 的连接详情
+ss -ntu | grep 192.168.1.100                       # 查看可疑 IP 的连接
+
+# 第 4 步：如果确认是攻击，封 IP
+sudo iptables -A INPUT -s 192.168.1.100 -j DROP    # 封掉这个 IP
 ```
 
 ---
 
-## Module 3: Service Management
+## 模块三：服务管理
 
-### What is systemd?
+### 什么是 systemd？
 
-**systemd** is the system and service manager used by virtually all modern Linux distributions. It starts services at boot, monitors them while they run, and restarts them if they crash. Think of it as the "control center" for everything running on your server.
+`systemd` 是 Linux 系统的"大管家"。它负责启动和管理系统上的各种服务（程序）。就像小区物业一样，管着水电、电梯、门禁等各种设施。
 
-A **service** (also called a "unit" or "daemon") is a program that runs in the background. For example, `nginx` serves web pages, `sshd` allows SSH connections, and `docker` manages containers — all as background services.
+`systemctl` 是你跟这个大管家沟通的工具——你告诉它"启动 nginx"，它就去启动；你告诉它"重启 mysql"，它就去重启。
 
-### systemctl Commands (with Examples)
+### 所有 systemctl 命令及示例
 
-**Check if a service is running:**
-
-```bash
-# Show the current status of the Nginx web server
-# This tells you if it is running, its process ID, and recent log entries
-systemctl status nginx
-```
-
-**Expected output:**
-
-```
-● nginx.service - A high performance web server and a reverse proxy server
-     Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
-     Active: active (running) since Mon 2026-04-14 10:00:00 UTC; 4h 30min ago
-       Docs: man:nginx(8)
-   Main PID: 1234 (nginx)
-      Tasks: 5 (limit: 4915)
-     Memory: 12.5M
-        CPU: 1.200s
-     CGroup: /system.slice/nginx.service
-             ├─1234 "nginx: master process /usr/sbin/nginx -g daemon on;"
-             └─1235 "nginx: worker process"
-```
-
-Key fields:
-- **Loaded**: The service configuration file was found and loaded.
-- **Active: active (running)**: The service is running right now.
-- **Main PID**: The process ID of the main service process.
-- **Memory**: How much RAM the service is using.
-
-**Start a service:**
+#### 查看服务状态
 
 ```bash
-# Start Nginx (if it is currently stopped)
-systemctl start nginx
-```
+# 查看 nginx 服务状态
+systemctl status nginx                             # 显示服务是否在运行、PID、最近日志
 
-**Stop a service:**
-
-```bash
-# Stop Nginx gracefully (lets it finish current requests)
-systemctl stop nginx
-```
-
-**Restart a service:**
-
-```bash
-# Stop and then start Nginx (brief downtime)
-# Use this when you have changed the configuration
-systemctl restart nginx
-```
-
-**Reload a service configuration (no downtime):**
-
-```bash
-# Reload Nginx configuration without stopping the service
-# This is better than restart because there is no downtime
-# Not all services support reload — check the service documentation
-systemctl reload nginx
-```
-
-**Enable a service to start at boot:**
-
-```bash
-# Make Nginx start automatically when the server boots
-# "enable" does NOT start the service now — it only sets it to start on next boot
-systemctl enable nginx
-```
-
-**Disable a service from starting at boot:**
-
-```bash
-# Prevent Nginx from starting automatically on boot
-# This does NOT stop a currently running service
-systemctl disable nginx
-```
-
-**Enable and start in one command:**
-
-```bash
-# Enable Nginx for boot AND start it right now
-systemctl enable --now nginx
-```
-
-**List all failed services:**
-
-```bash
-# Show all services that have crashed or failed to start
-systemctl --failed
-```
-
-**Expected output (when failures exist):**
-
-```
-UNIT              LOAD   ACTIVE SUB     DESCRIPTION
-mysql.service     loaded failed failed  MySQL Community Server
-php-fpm.service   loaded failed failed  The PHP FastCGI Process Manager
-```
-
-**View service logs:**
-
-```bash
-# Show the last 50 log entries for Nginx
-journalctl -u nginx -n 50 --no-pager
-```
-
-**List all running services:**
-
-```bash
-# Show every service that is currently active and running
+# 查看所有正在运行的服务
 systemctl list-units --type=service --state=running
 ```
 
-**Expected output:**
+期望输出（systemctl status nginx）：
 
 ```
-UNIT                    LOAD   ACTIVE SUB     DESCRIPTION
-cron.service            loaded active running Regular background program
-docker.service          loaded active running Docker Application Container Engine
-nginx.service           loaded active running A high performance web server
-sshd.service            loaded active running OpenBSD Secure Shell server
+● nginx.service - A high performance web server and a reverse proxy server
+   Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+   Active: active (running) since Mon 2026-04-14 10:00:00 CST; 4h 30min ago
+ Main PID: 1234 (nginx)
+    Tasks: 3 (limit: 4915)
+   Memory: 5.2M
+   CGroup: /system.slice/nginx.service
+           ├─1234 "nginx: master process /usr/sbin/nginx"
+           └─1235 "nginx: worker process"
 ```
 
-**View service dependencies:**
+解读：
+- `Loaded: loaded` — 配置文件加载成功
+- `Active: active (running)` — 正在运行
+- `enabled` — 开机会自动启动
+
+#### 启动服务
 
 ```bash
-# Show what other services a service depends on
-# Useful for understanding why a service will not start (maybe a dependency is down)
-systemctl list-dependencies nginx
+# 启动 nginx（必须用 sudo 因为需要管理员权限）
+sudo systemctl start nginx                         # 启动 nginx 服务
 ```
 
-### Common Service Name Reference
-
-Different Linux distributions sometimes use different names for the same service.
-
-| Application | Ubuntu/Debian Service Name | CentOS/RHEL Service Name |
-|-------------|---------------------------|--------------------------|
-| Nginx | `nginx` | `nginx` |
-| Apache | `apache2` | `httpd` |
-| MySQL | `mysql` | `mysqld` |
-| PostgreSQL | `postgresql` | `postgresql` |
-| Redis | `redis-server` | `redis` |
-| Docker | `docker` | `docker` |
-| SSH | `sshd` | `sshd` |
-| Cron | `cron` | `crond` |
-| Firewall | `ufw` | `firewalld` |
-
-### Process Management (Non-systemd)
-
-Sometimes you need to manage processes directly, without systemd.
-
-**Find a process by name or keyword:**
+#### 停止服务
 
 ```bash
-# Search for all processes matching "nginx"
-# "-a" = show full command line, "-f" = match against full command line
-pgrep -af nginx
+# 停止 nginx
+sudo systemctl stop nginx                          # 停止 nginx 服务
 ```
 
-**Expected output:**
-
-```
-1234 nginx: master process /usr/sbin/nginx -g daemon on;
-1235 nginx: worker process
-```
-
-**Terminate a process gracefully (SIGTERM):**
+#### 重启服务
 
 ```bash
-# Ask process 5678 to shut down cleanly
-# SIGTERM (signal 15) lets the process save data and exit gracefully
-kill 5678
+# 重启 nginx（先停再启，会短暂中断服务）
+sudo systemctl restart nginx                        # 重启 nginx 服务
 ```
 
-**Force-kill a process (SIGKILL):**
+#### 重载服务配置
 
 ```bash
-# Immediately terminate process 5678 with no chance to save data
-# USE AS A LAST RESORT — the process cannot clean up, data may be lost
-kill -9 5678
+# 重载 nginx 配置（不中断服务，平滑加载新配置）
+sudo systemctl reload nginx                        # 重载 nginx 配置
 ```
 
-**SIGTERM vs SIGKILL — What is the difference?**
+**restart 和 reload 的区别**：
+- `restart` = 把服务关了再开，中间会短暂中断
+- `reload` = 让服务重新读取配置文件，不中断（不是所有服务都支持）
 
-| Signal | Number | What happens | When to use |
-|--------|--------|-------------|-------------|
-| SIGTERM | 15 | The process receives a "please exit" signal. It can save data, close connections, and exit cleanly. | Always try this first |
-| SIGKILL | 9 | The kernel immediately kills the process. It has NO chance to save data or close connections. | Only when SIGTERM did not work and the process is stuck |
-
-**Kill processes by name:**
+#### 设置开机自启
 
 ```bash
-# Kill all processes matching a pattern
-# "-f" = match the full command line
-pkill -f "python worker.py"
+# 让 nginx 开机自动启动
+sudo systemctl enable nginx                        # 设置开机自启
 
-# Kill all processes with an exact name
-killall nginx
+# 取消开机自启
+sudo systemctl disable nginx                       # 取消开机自启
+
+# 同时启用并设置开机自启
+sudo systemctl enable --now nginx                   # 现在启动 + 开机自启
 ```
 
-**Check which port a process is using:**
+#### 查看服务日志
 
 ```bash
-# Find which process is listening on port 8080
-# Replace <PID> with a process ID to check a specific process
-ss -tlnp | grep 8080
+# 查看 nginx 的日志
+journalctl -u nginx                                # 显示 nginx 所有日志
+journalctl -u nginx -n 50                          # 最近 50 条
+journalctl -u nginx --since "1 hour ago"           # 最近 1 小时
+journalctl -u nginx -f                             # 实时跟踪
 ```
 
-### Firewall Management
-
-A firewall controls which network connections are allowed in and out of your server. Different Linux distributions use different firewall tools.
-
-#### UFW (Ubuntu)
-
-UFW (Uncomplicated Firewall) is the default firewall tool on Ubuntu. It makes firewall management simple.
+#### 其他常用命令
 
 ```bash
-# Check current firewall status and rules
-ufw status
+# 查看服务是否开机自启
+systemctl is-enabled nginx                         # 输出 enabled 或 disabled
 
-# Allow HTTP traffic on port 80
-ufw allow 80/tcp
+# 查看服务是否正在运行
+systemctl is-active nginx                          # 输出 active 或 inactive
 
-# Allow HTTPS traffic on port 443
-ufw allow 443/tcp
+# 查看服务依赖关系
+systemctl list-dependencies nginx                  # 显示依赖的服务
 
-# Block MySQL port from external access (only allow local connections)
-ufw deny 3306/tcp
-
-# Allow SSH (important! do this before enabling the firewall or you may lock yourself out)
-ufw allow 22/tcp
-
-# Enable the firewall
-ufw enable
-
-# Delete a rule
-ufw delete allow 80/tcp
+# 列出所有服务（包括没运行的）
+systemctl list-units --type=service --all          # 显示所有服务
 ```
 
-**Expected output for `ufw status`:**
+### 常用服务名对照表
+
+| 服务名 | 中文名 | 干什么用的 |
+|--------|-------|-----------|
+| nginx | 网页服务器 | 提供网页访问服务 |
+| apache2 / httpd | 网页服务器 | 同上（另一个常见网页服务器） |
+| mysql / mysqld | 数据库 | 存储和管理数据 |
+| postgresql | 数据库 | 同上（另一种数据库） |
+| redis | 缓存数据库 | 高速缓存，提升访问速度 |
+| docker | 容器服务 | 管理和运行容器 |
+| sshd / ssh | 远程登录 | 让你能远程连上服务器 |
+| cron | 定时任务 | 按时间自动执行任务 |
+| firewalld | 防火墙 | 控制哪些网络请求能进来 |
+| ufw | 防火墙 | 同上（Ubuntu 简化版防火墙） |
+| systemd-resolved | DNS 解析 | 把域名翻译成 IP |
+| rsyslog | 日志服务 | 收集和存储系统日志 |
+| networkmanager | 网络管理 | 管理网络连接 |
+
+### 进程管理
+
+除了用 systemctl 管理服务，有时你需要直接管理进程。
+
+#### 查找进程
+
+```bash
+# 查找 nginx 相关的进程
+ps aux | grep nginx                                # 找到所有 nginx 进程
+
+# 用 pgrep 按名字找进程 PID
+pgrep nginx                                        # 输出 nginx 的 PID 号
+
+# 查看进程树（父子关系）
+pstree -p | grep nginx                             # 显示 nginx 进程的层级关系
+```
+
+#### 终止进程
+
+```bash
+# 正常结束进程（发送 SIGTERM 信号，进程可以优雅退出）
+kill 1234                                          # 结束 PID 为 1234 的进程
+
+# 强制杀死进程（发送 SIGKILL 信号，进程立刻被杀，没机会收尾）
+kill -9 1234                                       # 强制杀死 PID 为 1234 的进程
+
+# 按名字结束进程
+killall nginx                                      # 结束所有 nginx 进程
+
+# 用 pkill 按名字结束（支持正则匹配）
+pkill -f "nginx: worker"                           # 结束匹配的进程
+```
+
+#### SIGTERM 和 SIGKILL 的区别
+
+| 信号 | 编号 | 效果 | 白话解释 |
+|------|------|------|---------|
+| SIGTERM | 15 | 进程收到后可以清理收尾再退出 | "请你关门"——店员整理好再走 |
+| SIGKILL | 9 | 进程立刻被强制杀死，无法收尾 | "立刻关门"——店员被赶走，东西散一地 |
+
+**建议：先尝试 kill（SIGTERM），不行再用 kill -9（SIGKILL）。** 因为 SIGKILL 会导致进程没机会保存数据、释放资源，可能造成数据丢失。
+
+#### 查看进程详情
+
+```bash
+# 查看进程的详细信息
+top                                                # 实时监控（按 q 退出）
+htop                                               # 更好看的实时监控（需安装）
+
+# 查看某个进程的详细信息
+cat /proc/1234/status                              # PID 1234 的详细信息
+
+# 查看进程打开了哪些文件
+lsof -p 1234                                      # PID 1234 打开的所有文件
+```
+
+### 防火墙管理
+
+防火墙就像门口的保安，控制哪些网络请求能进来、哪些不能。
+
+#### UFW（Ubuntu 默认）
+
+```bash
+# 查看防火墙状态
+sudo ufw status                                    # 显示防火墙是否开启及规则
+
+# 启用防火墙
+sudo ufw enable                                    # 开启防火墙
+
+# 关闭防火墙
+sudo ufw disable                                   # 关闭防火墙
+
+# 放行端口（允许 80 端口的请求进来）
+sudo ufw allow 80                                  # 放行 80 端口（HTTP）
+sudo ufw allow 443                                 # 放行 443 端口（HTTPS）
+sudo ufw allow 22                                  # 放行 22 端口（SSH）
+
+# 放行特定 IP 访问特定端口
+sudo ufw allow from 192.168.1.100 to any port 3306 # 只允许这个 IP 访问 3306
+
+# 删除规则
+sudo ufw delete allow 80                           # 删除 80 端口的规则
+
+# 查看规则编号
+sudo ufw status numbered                           # 显示带编号的规则列表
+```
+
+期望输出（ufw status）：
 
 ```
 Status: active
+
 To                         Action      From
 --                         ------      ----
 22/tcp                     ALLOW       Anywhere
 80/tcp                     ALLOW       Anywhere
 443/tcp                    ALLOW       Anywhere
-3306/tcp                   DENY        Anywhere
+3306/tcp                   ALLOW       192.168.1.100
+22/tcp (v6)                ALLOW       Anywhere (v6)
 ```
 
-#### firewalld (CentOS/RHEL)
+#### firewalld（CentOS/RHEL 默认）
 
 ```bash
-# List all current firewall rules
-firewall-cmd --list-all
+# 查看防火墙状态
+sudo firewall-cmd --state                         # 显示 running 或 not running
 
-# Allow HTTP traffic permanently (survives reboot)
-firewall-cmd --add-port=80/tcp --permanent
+# 查看所有开放的端口
+sudo firewall-cmd --list-ports                    # 显示所有开放的端口
 
-# Allow HTTPS traffic permanently
-firewall-cmd --add-port=443/tcp --permanent
+# 开放端口（--permanent 表示永久生效）
+sudo firewall-cmd --permanent --add-port=80/tcp   # 永久开放 80 端口
+sudo firewall-cmd --reload                        # 重载防火墙使规则生效
 
-# Reload the firewall to apply new permanent rules
-firewall-cmd --reload
+# 关闭端口
+sudo firewall-cmd --permanent --remove-port=80/tcp  # 关闭 80 端口
+sudo firewall-cmd --reload                        # 重载生效
 
-# Remove a port rule
-firewall-cmd --remove-port=8080/tcp --permanent
-firewall-cmd --reload
+# 开放服务（按服务名）
+sudo firewall-cmd --permanent --add-service=http  # 开放 HTTP 服务
+sudo firewall-cmd --reload                        # 重载生效
+
+# 查看所有规则
+sudo firewall-cmd --list-all                      # 显示所有防火墙规则
 ```
 
-**Expected output for `firewall-cmd --list-all`:**
+期望输出（firewall-cmd --list-all）：
 
 ```
 public (active)
@@ -1416,795 +1109,861 @@ public (active)
   icmp-block-inversion: no
   interfaces: eth0
   sources:
-  services: ssh dhcpv6-client
+  services: ssh dhcpv6-client http
   ports: 80/tcp 443/tcp
+  protocols:
+  forward: no
+  masquerade: no
+  forward-ports:
+  source-ports:
+  icmp-blocks:
+  rich rules:
 ```
 
-#### iptables (Low-level, All Linux)
+#### iptables（底层防火墙）
 
 ```bash
-# List all current iptables rules with details
-# "-L" = list, "-n" = numeric (no DNS), "-v" = verbose
-iptables -L -n -v
-```
+# 查看所有规则
+sudo iptables -L -n                               # 显示所有防火墙规则
 
-**Expected output:**
+# 放行某个端口
+sudo iptables -A INPUT -p tcp --dport 80 -j ACCEPT   # 允许 80 端口进入
 
-```
-Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
- pkts bytes target     prot opt in     out     source       destination
- 500  25000 ACCEPT     tcp  --  *      *       0.0.0.0/0   0.0.0.0/0   tcp dpt:22
- 300  15000 ACCEPT     tcp  --  *      *       0.0.0.0/0   0.0.0.0/0   tcp dpt:80
- 200  10000 ACCEPT     tcp  --  *      *       0.0.0.0/0   0.0.0.0/0   tcp dpt:443
-```
+# 封禁某个 IP
+sudo iptables -A INPUT -s 1.2.3.4 -j DROP            # 封禁 IP 1.2.3.4
 
-> **Warning:** iptables changes take effect immediately but are lost on reboot unless you save them. On Ubuntu, use `iptables-persistent`. On CentOS, use `iptables-services`.
+# 删除规则（先查看行号）
+sudo iptables -L INPUT --line-numbers              # 显示规则及行号
+sudo iptables -D INPUT 3                           # 删除第 3 条规则
+
+# 保存规则（重启不丢失）
+sudo iptables-save > /etc/iptables/rules.v4       # 保存规则到文件
+```
 
 ---
 
-## Module 4: Docker & Container Management
+## 模块四：Docker 与容器管理
 
-### What is Docker?
+### 什么是 Docker？
 
-Docker is a tool that lets you package an application and all its dependencies into a standardized unit called a **container**. A container is like a lightweight virtual machine — it runs in its own isolated environment but shares the host's kernel, making it much faster and more efficient than a full VM.
+Docker 是一种"打包和运行应用"的工具。打个比方：
 
-Think of it this way:
-- **Virtual Machine**: A full computer (with its own operating system) running inside your server. Heavy, slow to start, uses lots of resources.
-- **Container**: Just the application and its dependencies, sharing the server's kernel. Lightweight, starts in seconds, uses minimal resources.
+- **传统方式**：你在自己电脑上装了 Python 3.9 + Django + MySQL，程序能跑。但到了服务器上，Python 版本不对、MySQL 没装、少了个依赖库……程序跑不起来。
+- **Docker 方式**：你把程序 + 所有依赖 + 配置一起打包成一个"箱子"（镜像），把这个箱子放到任何服务器上都能直接跑，因为所有东西都在箱子里。
 
-Key Docker terms:
-- **Image**: A read-only template with instructions for creating a container (like a recipe).
-- **Container**: A running instance of an image (like a cake baked from the recipe).
-- **Dockerfile**: A text file with instructions to build an image.
-- **Registry**: A storage for images (Docker Hub is the default public registry).
-- **Volume**: A persistent storage location that survives container restarts.
+**几个关键概念**：
+- **镜像（Image）**：打包好的"箱子模板"，是只读的
+- **容器（Container）**：用镜像启动的"运行中的箱子"，可以读可以写
+- **Dockerfile**：教 Docker 怎么打包的"说明书"
+- **Docker Compose**：一次管理多个容器的工具
 
-### Container Lifecycle
+### 容器生命周期
 
-**List containers:**
+#### 运行容器（docker run）
 
 ```bash
-# Show all running containers
-docker ps
-
-# Show ALL containers including stopped ones
-docker ps -a
+# 运行一个 nginx 容器
+# -d: 后台运行（detached）
+# --name: 给容器起个名字
+# -p: 端口映射（主机端口:容器端口），把主机的 8080 映射到容器的 80
+docker run -d --name my-nginx -p 8080:80 nginx:latest
+# 解释：用 nginx 最新镜像创建一个叫 my-nginx 的容器，后台运行，访问主机的 8080 端口就是访问容器里的 80 端口
 ```
 
-**Expected output for `docker ps`:**
+期望输出：
 
 ```
-CONTAINER ID   IMAGE          COMMAND                  CREATED        STATUS        PORTS                    NAMES
-a1b2c3d4e5f6   nginx:latest   "/docker-entrypoint.…"   3 hours ago    Up 3 hours    0.0.0.0:8080->80/tcp     myapp
-f6e5d4c3b2a1   redis:7        "redis-server"           3 hours ago    Up 3 hours    0.0.0.0:6379->6379/tcp   redis
+a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
+（这是容器的 ID，每个容器都有唯一 ID）
 ```
 
-**Start a stopped container:**
+#### 启动已存在的容器
 
 ```bash
-# Start a container that was previously stopped
-docker start myapp
+# 启动一个已停止的容器
+docker start my-nginx                              # 启动 my-nginx 容器
 ```
 
-**Stop a running container:**
+#### 停止容器
 
 ```bash
-# Gracefully stop a container (sends SIGTERM, then SIGKILL after 10 seconds)
-docker stop myapp
+# 停止正在运行的容器
+docker stop my-nginx                               # 优雅停止（给 10 秒时间收尾）
 ```
 
-**Restart a container:**
+#### 重启容器
 
 ```bash
-# Stop and start a container
-docker restart myapp
+# 重启容器
+docker restart my-nginx                            # 先停后启
 ```
 
-**Create and start a new container:**
+#### 删除容器
 
 ```bash
-# Run Nginx in the background (-d), name it "myapp", map host port 8080 to container port 80
-# "-d" = detached (run in background)
-# "--name myapp" = give the container a name
-# "-p 8080:80" = map host port 8080 to container port 80
-# "nginx:latest" = the image to use
-docker run -d --name myapp -p 8080:80 nginx:latest
+# 删除一个已停止的容器
+docker rm my-nginx                                 # 删除 my-nginx 容器
+
+# 强制删除正在运行的容器
+docker rm -f my-nginx                              # 强制删除（即使还在运行）
+
+# 删除所有已停止的容器
+docker container prune                             # 清理所有停止的容器
 ```
 
-**Expected output:**
-
-```
-a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef1234
-```
-
-(This long string is the container ID.)
-
-**Remove a stopped container:**
+#### 查看容器
 
 ```bash
-# Remove a container that is already stopped
-docker rm myapp
+# 查看正在运行的容器
+docker ps                                          # 列出运行中的容器
 
-# Force-remove a running container (stops it first, then removes)
-docker rm -f myapp
+# 查看所有容器（包括已停止的）
+docker ps -a                                       # 列出所有容器
 ```
 
-**Clean up all stopped containers:**
+期望输出（docker ps）：
+
+```
+CONTAINER ID   IMAGE          COMMAND                  CREATED       STATUS       PORTS                    NAMES
+a1b2c3d4e5f6   nginx:latest   "/docker-entrypoint.…"   2 hours ago   Up 2 hours   0.0.0.0:8080->80/tcp     my-nginx
+f6g7h8i9j0k1   redis:7        "docker-entrypoint.s…"   3 hours ago   Up 3 hours   0.0.0.0:6379->6379/tcp   my-redis
+```
+
+### 容器运维
+
+#### 查看容器日志
 
 ```bash
-# Remove all containers that are not running
-# "-f" = do not ask for confirmation
-docker container prune -f
+# 查看 my-nginx 容器的日志
+docker logs my-nginx                               # 显示所有日志
+
+# 实时跟踪日志
+docker logs -f my-nginx                            # 持续显示新日志，Ctrl+C 退出
+
+# 查看最近 50 行日志
+docker logs --tail 50 my-nginx                     # 最后 50 行日志
+
+# 查看最近 1 小时的日志
+docker logs --since "1h" my-nginx                  # 最近 1 小时的日志
 ```
 
-**Expected output:**
-
-```
-Deleted Containers:
-b2c3d4e5f6g7, c3d4e5f6g7h8, d4e5f6g7h8i9
-
-Total reclaimed space: 150MB
-```
-
-### Container Operations
-
-**View container logs:**
+#### 进入容器
 
 ```bash
-# Show all logs for a container
-docker logs myapp
+# 进入容器内部（像 SSH 登录服务器一样进入容器）
+docker exec -it my-nginx /bin/bash                 # 进入 my-nginx 容器，打开 bash
+# 进去后可以像操作 Linux 一样操作，输入 exit 退出
 
-# Show the last 100 lines and keep watching for new log entries ("follow" mode)
-# Press Ctrl+C to stop watching
-docker logs --tail 100 -f myapp
+# 如果容器没有 bash，用 sh
+docker exec -it my-nginx /bin/sh                   # 有些精简镜像没有 bash，用 sh
 
-# Show logs from the last hour only
-docker logs --since 1h myapp
+# 在容器里执行一条命令（不进入容器）
+docker exec my-nginx cat /etc/nginx/nginx.conf     # 查看容器里的配置文件
 ```
 
-**Expected output:**
-
-```
-192.168.1.100 - - [14/Apr/2026:14:30:05 +0000] "GET / HTTP/1.1" 200 612 "-" "curl/7.68.0"
-192.168.1.100 - - [14/Apr/2026:14:30:06 +0000] "GET /favicon.ico HTTP/1.1" 404 555 "-" "curl/7.68.0"
-```
-
-**Execute a command inside a running container:**
+#### 容器资源监控
 
 ```bash
-# Open an interactive bash shell inside the container
-# "-i" = interactive, "-t" = allocate a pseudo-terminal
-# Type "exit" to leave the container shell
-docker exec -it myapp bash
-
-# If the container does not have bash, try sh instead
-docker exec -it myapp sh
-
-# Run a single command without opening a shell
-docker exec myapp cat /etc/hostname
+# 查看容器资源使用情况
+docker stats                                       # 实时显示所有容器的 CPU/内存使用
+docker stats my-nginx                              # 只看 my-nginx 的资源使用
 ```
 
-**Monitor container resource usage:**
+期望输出：
+
+```
+CONTAINER ID   NAME       CPU %   MEM USAGE / LIMIT   MEM %   NET I/O           BLOCK I/O         PIDS
+a1b2c3d4e5f6   my-nginx   0.02%   5.2MiB / 7.78GiB   0.07%   1.2kB / 0B        0B / 0B           3
+f6g7h8i9j0k1   my-redis   0.15%   8.5MiB / 7.78GiB   0.11%   856B / 0B         12MB / 0B         5
+```
+
+#### 查看容器详情
 
 ```bash
-# Show real-time CPU, memory, and network usage for all running containers
-# Press Ctrl+C to stop
-docker stats
+# 查看容器的详细信息（IP 地址、挂载卷、环境变量等）
+docker inspect my-nginx                            # 显示详细 JSON 格式信息
 
-# Show stats for a specific container only
-docker stats myapp
+# 只看 IP 地址
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' my-nginx
 ```
 
-**Expected output:**
-
-```
-CONTAINER ID   NAME      CPU %   MEM USAGE / LIMIT   MEM %   NET I/O           BLOCK I/O
-a1b2c3d4e5f6   myapp     0.25%   5.5MiB / 512MiB    1.07%   1.2kB / 0B        0B / 0B
-f6e5d4c3b2a1   redis     0.10%   3.2MiB / 256MiB    1.25%   850B / 0B         0B / 0B
-```
-
-**Inspect container details:**
+#### 查看端口映射
 
 ```bash
-# Show detailed configuration of a container in JSON format
-# Includes: IP address, mounted volumes, environment variables, image, etc.
-docker inspect myapp
+# 查看 my-nginx 的端口映射
+docker port my-nginx                                # 显示端口映射关系
 ```
 
-**Check container port mappings:**
-
-```bash
-# Show which host ports are mapped to which container ports
-docker port myapp
-```
-
-**Expected output:**
+期望输出：
 
 ```
 80/tcp -> 0.0.0.0:8080
 ```
 
-This means: container port 80 is accessible on host port 8080.
+### 镜像管理
 
-### Image Management
-
-**List images:**
+#### 拉取镜像
 
 ```bash
-# Show all Docker images stored on this server
-docker images
+# 从 Docker Hub 下载 nginx 镜像
+docker pull nginx:latest                            # 下载最新版 nginx 镜像
+
+# 下载特定版本
+docker pull nginx:1.25                             # 下载 1.25 版本
 ```
 
-**Expected output:**
+期望输出：
 
 ```
-REPOSITORY    TAG       IMAGE ID       CREATED        SIZE
-nginx         latest    a1b2c3d4e5f6   2 days ago     187MB
-redis         7         f6e5d4c3b2a1   5 days ago     130MB
-myapp         v1        b2c3d4e5f6g7   1 week ago     450MB
+latest: Pulling from library/nginx
+a2abf6e4d28e: Pull complete
+7cac8d5db1f1: Pull complete
+8236b3bb1173: Pull complete
+Digest: sha256:abc123...
+Status: Downloaded newer image for nginx:latest
+docker.io/library/nginx:latest
 ```
 
-**Pull (download) an image:**
+#### 构建镜像
 
 ```bash
-# Download the latest Nginx image from Docker Hub
-docker pull nginx:latest
-
-# Download a specific version
-docker pull redis:7.2
+# 根据当前目录的 Dockerfile 构建镜像
+# -t: 给镜像起名字和标签（格式: 名字:标签）
+docker build -t my-app:v1 .                         # 构建镜像，名字 my-app，标签 v1
 ```
 
-**Build an image from a Dockerfile:**
+#### 查看镜像
 
 ```bash
-# Build an image from the Dockerfile in the current directory
-# "-t myapp:v1" = tag the image as "myapp:v1"
-# "." = use the current directory as the build context
-docker build -t myapp:v1 .
+# 查看本地所有镜像
+docker images                                      # 列出所有本地镜像
 ```
 
-**Remove an image:**
+期望输出：
 
-```bash
-# Delete an image from your server
-# You cannot remove an image that is used by any container (even stopped ones)
-docker rmi nginx:latest
+```
+REPOSITORY   TAG       IMAGE ID       CREATED        SIZE
+nginx        latest    abc123def456   2 days ago     187MB
+redis        7         789ghi012jkl   5 days ago     130MB
+my-app       v1        mno345pqr678   1 minute ago   500MB
 ```
 
-**Remove dangling images (unused build layers):**
+#### 删除镜像
 
 ```bash
-# "Dangling" images are intermediate build layers that are no longer referenced
-# They waste disk space and are safe to remove
-docker image prune -f
+# 删除一个镜像（必须先删除用这个镜像的容器）
+docker rmi nginx:latest                            # 删除 nginx 最新镜像
+
+# 强制删除
+docker rmi -f nginx:latest                         # 强制删除（即使有容器在用）
 ```
 
-**View image build history:**
+#### 清理镜像
 
 ```bash
-# Show each layer of an image and the command that created it
-# Useful for understanding how an image was built and how large each layer is
-docker history myapp:v1
+# 删除所有没有用的镜像（没有被任何容器引用的）
+docker image prune                                 # 清理无用镜像
+
+# 删除所有镜像（慎用！）
+docker image prune -a                              # 清理所有未使用的镜像
+
+# 查看 Docker 占用的磁盘空间
+docker system df                                   # 显示 Docker 各部分占用的空间
+```
+
+期望输出（docker system df）：
+
+```
+TYPE            TOTAL   ACTIVE  SIZE      RECLAIMABLE
+Images          5       3       1.2GB     500MB (41%)
+Containers      4       3       120MB     30MB (25%)
+Local Volumes   2       1       500MB     250MB (50%)
+Build Cache     10      0       800MB     800MB (100%)
 ```
 
 ### Docker Compose
 
-Docker Compose lets you define and manage multi-container applications with a single `docker-compose.yml` file.
+Docker Compose 用来一次性管理多个容器。比如你的应用需要 nginx + mysql + redis，用 Compose 可以一条命令全部启动。
 
-**Start all services defined in docker-compose.yml:**
-
-```bash
-# Start all services in the background (-d = detached)
-# Must be run in a directory containing docker-compose.yml
-docker compose up -d
-```
-
-**Expected output:**
-
-```
-[+] Running 3/3
- ✔ Container myapp   Started   0.5s
- ✔ Container redis   Started   0.3s
- ✔ Container db      Started   0.8s
-```
-
-**Stop and remove all services:**
+#### 启动所有服务
 
 ```bash
-# Stop all containers and remove them, along with their networks
-# Volumes are preserved by default (add "--volumes" to also remove volumes)
-docker compose down
+# 在 docker-compose.yml 所在的目录下执行
+docker-compose up -d                               # 后台启动所有服务（-d 表示后台）
 ```
 
-**Check service status:**
+期望输出：
+
+```
+Creating network "myapp_default" with the default driver
+Creating myapp_nginx_1 ... done
+Creating myapp_mysql_1 ... done
+Creating myapp_redis_1 ... done
+```
+
+#### 停止所有服务
 
 ```bash
-# Show the status of all services defined in docker-compose.yml
-docker compose ps
+# 停止所有服务
+docker-compose down                                # 停止并删除所有容器
 ```
 
-**View logs for a specific service:**
+#### 查看服务状态
 
 ```bash
-# Follow (stream) logs for the "myapp" service
-# Press Ctrl+C to stop
-docker compose logs -f myapp
+# 查看所有服务状态
+docker-compose ps                                  # 显示所有服务的运行状态
 ```
 
-**Restart a single service:**
+期望输出：
+
+```
+      Name                   Command              State          Ports
+--------------------------------------------------------------------------------
+myapp_mysql_1   docker-entrypoint.sh mysqld   Up (healthy)   3306/tcp
+myapp_nginx_1   /docker-entrypoint.sh ngin   Up             0.0.0.0:80->80/tcp
+myapp_redis_1   docker-entrypoint.sh redis   Up             6379/tcp
+```
+
+#### 查看日志
 
 ```bash
-# Restart only the "myapp" service, leaving others running
-docker compose restart myapp
+# 查看所有服务的日志
+docker-compose logs                                # 显示所有服务日志
+
+# 查看某个服务的日志
+docker-compose logs nginx                          # 只看 nginx 的日志
+
+# 实时跟踪
+docker-compose logs -f nginx                       # 持续显示 nginx 日志
 ```
 
-**Pull latest images and rebuild:**
+#### 扩容
 
 ```bash
-# Download the latest images from the registry
-docker compose pull
-
-# Rebuild and restart services (useful after code changes)
-docker compose up -d --build
+# 把 nginx 扩展到 3 个实例
+docker-compose up -d --scale nginx=3               # 启动 3 个 nginx 容器
 ```
 
-**Scale a service (run multiple instances):**
+#### 其他常用命令
 
 ```bash
-# Run 3 instances of the "worker" service
-# Make sure your app is designed to run multiple instances safely
-docker compose up -d --scale worker=3
+# 重启所有服务
+docker-compose restart                             # 重启
+
+# 重启某个服务
+docker-compose restart nginx                       # 只重启 nginx
+
+# 停止但不删除容器
+docker-compose stop                                # 停止所有服务
+
+# 重新构建镜像
+docker-compose build                               # 重新构建所有服务的镜像
+docker-compose build nginx                         # 只重新构建 nginx 的镜像
 ```
 
-### Docker System Maintenance
-
-Over time, Docker uses more and more disk space with old images, stopped containers, and build cache. Regular cleanup is essential.
-
-**Check Docker disk usage:**
+### Docker 系统维护
 
 ```bash
-# Show how much disk space Docker is using, broken down by type
-docker system df
+# 查看 Docker 占用的磁盘空间
+docker system df                                   # 显示各部分占用
+
+# 一键清理所有没用的东西（停止的容器、无用镜像、未用网络、构建缓存）
+docker system prune                                # 清理无用资源
+# 注意：这个命令会问你确认，输入 y 确认
+
+# 更彻底的清理（包括所有未使用的镜像）
+docker system prune -a                             # 清理更多（包括未使用的镜像）
+
+# 清理卷（volume）
+docker volume prune                                # 清理未使用的卷
+
+# 清理构建缓存
+docker builder prune                               # 清理构建缓存
 ```
 
-**Expected output:**
+**每个清理命令清什么**：
 
-```
-TYPE            TOTAL   ACTIVE  SIZE      RECLAIMABLE
-Images          7       3       1.5GB     800MB (53%)
-Containers      4       3       50MB      25MB (50%)
-Local Volumes   2       2       500MB    0B (0%)
-Build Cache     15      0       200MB    200MB (100%)
-```
+| 命令 | 清理什么 | 会不会影响运行中的容器 |
+|------|---------|---------------------|
+| `docker system prune` | 停止的容器、无用镜像、未用网络、构建缓存 | ❌ 不会 |
+| `docker system prune -a` | 同上 + 所有未被容器使用的镜像 | ❌ 不会 |
+| `docker image prune` | 未被任何容器使用的镜像 | ❌ 不会 |
+| `docker container prune` | 所有停止的容器 | ❌ 不会 |
+| `docker volume prune` | 未被任何容器使用的卷 | ❌ 不会 |
+| `docker builder prune` | 构建缓存 | ❌ 不会 |
 
-**What each prune command removes:**
+### Docker 常见故障排查
 
-| Command | What it removes | What it keeps |
-|---------|-----------------|---------------|
-| `docker system prune -f` | Stopped containers, dangling images, unused networks, build cache | Running containers, images used by containers, named volumes |
-| `docker system prune -a -f` | Everything above PLUS all images not used by a running container | Running containers and their images, named volumes |
-| `docker image prune -f` | Dangling images only (untagged intermediate layers) | Tagged images, images in use |
-| `docker image prune -a -f` | All images not used by any container | Images currently in use |
-| `docker container prune -f` | All stopped containers | Running containers |
-| `docker volume prune -f` | Volumes not used by any container | Volumes in use |
-| `docker builder prune -f` | Build cache only | Everything else |
-
-**Warning about `docker system prune -a -f`:** This deletes ALL images that are not currently used by a running container. The next time you need one of those images, you will have to download it again. Use this only when you really need to free disk space.
+#### 容器启动后立刻退出
 
 ```bash
-# Light cleanup — safe for production
-docker system prune -f
+# 查看容器退出原因
+docker logs my-container                           # 看日志找错误信息
 
-# Deep cleanup — removes unused images too (be careful!)
-docker system prune -a -f
-
-# Clean up build cache only
-docker builder prune -f
-
-# Clean up unused volumes (WARNING: this deletes data in unused volumes!)
-docker volume prune -f
+# 查看退出码
+docker inspect my-container | grep -i exit         # 查看退出码
 ```
 
-### Common Docker Troubleshooting
+退出码含义：
+- `0`：正常退出
+- `1`：应用错误
+- `137`：被 OOM Killer 杀了（内存不够）
+- `139`：段错误（程序 bug）
 
-**Problem: Container won't start — keeps restarting**
+#### 容器无法连接网络
 
 ```bash
-# Check the container's exit code and logs
-# "-a" = include stopped containers
-docker ps -a | grep myapp
+# 检查容器网络
+docker network ls                                  # 列出所有 Docker 网络
+docker network inspect bridge                     # 查看 bridge 网络详情
 
-# View the logs to find the error
-docker logs myapp
-
-# Inspect the container for the exit code
-# Look for "State" -> "ExitCode" in the output
-# Common exit codes:
-#   0 = exited normally
-#   1 = application error
-#   137 = killed by OOM (out of memory)
-#   139 = segmentation fault
-docker inspect myapp | grep -A5 "State"
+# 重建网络
+docker network create my-network                   # 创建新网络
+docker run -d --network=my-network my-nginx        # 使用新网络
 ```
 
-**Problem: Docker logs are taking up too much disk space**
-
-Docker container logs can grow without limit by default. To fix this:
+#### 容器磁盘空间不足
 
 ```bash
-# Check how much space Docker is using
-docker system df
+# 查看 Docker 磁盘使用
+docker system df                                   # 显示各部分磁盘使用
 
-# Option 1: Configure log rotation in /etc/docker/daemon.json
-# Add these settings:
-# {
-#   "log-driver": "json-file",
-#   "log-opts": {
-#     "max-size": "10m",    # Rotate when log file reaches 10MB
-#     "max-file": "3"       # Keep at most 3 rotated log files
-#   }
-# }
-# Then restart Docker: sudo systemctl restart docker
+# 清理无用资源
+docker system prune -a                             # 清理所有无用资源
 
-# Option 2: Manually truncate a specific container's log file
-# First find the log path:
-docker inspect --format='{{.LogPath}}' myapp
-# Then truncate it (this does not stop the container):
-sudo truncate -s 0 /var/lib/docker/containers/abc123/abc123-json.log
+# 查看 Docker 数据目录大小
+du -sh /var/lib/docker                             # 显示 Docker 数据目录大小
 ```
 
-**Problem: Docker is using too much disk space**
+#### 容器内无法解析域名
 
 ```bash
-# Step 1: See what is using the space
-docker system df
+# 进入容器测试 DNS
+docker exec -it my-container ping google.com       # 测试是否能解析域名
 
-# Step 2: Remove all stopped containers
-docker container prune -f
+# 查看 DNS 配置
+docker exec -it my-container cat /etc/resolv.conf  # 查看 DNS 配置
 
-# Step 3: Remove unused images
-docker image prune -a -f
-
-# Step 4: Remove build cache
-docker builder prune -f
-
-# Step 5: If still too full, remove unused volumes (CAUTION: deletes data!)
-docker volume prune -f
-
-# Nuclear option: remove everything Docker is not actively using
-docker system prune -a --volumes -f
-```
-
-**Problem: Container timezone is wrong**
-
-By default, Docker containers use UTC. To fix:
-
-```bash
-# Set the container timezone when running
-# Replace "America/New_York" with your timezone
-docker run -d --name myapp -e TZ=America/New_York -p 8080:80 nginx:latest
-
-# Or mount the host's timezone file
-docker run -d --name myapp -v /etc/localtime:/etc/localtime:ro -p 8080:80 nginx:latest
+# 启动时指定 DNS
+docker run -d --dns 8.8.8.8 my-nginx               # 指定 DNS 服务器
 ```
 
 ---
 
-## Alert Thresholds Reference
+## 告警阈值参考
 
-Use this table to understand when you should worry about a metric.
+下面这张表告诉你各个指标在什么范围需要注意、什么范围需要紧急处理。
 
-| Metric | Warning | Critical | Plain English Explanation |
-|--------|---------|----------|--------------------------|
-| CPU usage | >70% | >90% | Warning: the CPU is busy. Critical: the CPU is overwhelmed and tasks are queuing up. |
-| Memory usage | >80% | >90% | Warning: RAM is getting full. Critical: almost no RAM left — the system will start using slow swap space. |
-| Swap usage | >30% | >50% | Warning: the system is using disk as RAM overflow. Critical: heavy swap usage will make everything very slow. |
-| Disk usage | >80% | >90% | Warning: disk is filling up. Critical: very little space left — services may fail, you cannot write files. |
-| Inode usage | >80% | >90% | Warning: file metadata slots are filling up. Critical: you cannot create new files even if space exists (happens with millions of tiny files). |
-| Zombie processes | >0 | >5 | Warning: a process died but was not cleaned up. Critical: many zombies indicate a bug in the parent application. |
-| System load (1min) | >cores * 0.7 | >cores | Warning: CPU is getting busy. Critical: more work than the CPU can handle. Example: with 4 cores, warning at 2.8, critical at 4.0. |
+| 指标 | 正常范围 | ⚠️ 警告 | 🔴 严重 | 白话解释 |
+|------|---------|---------|---------|---------|
+| CPU 使用率 | < 70% | 70% - 90% | > 90% | 大脑太忙了，处理不过来 |
+| 负载均值/核心数 | < 0.7 | 0.7 - 1.0 | > 1.0 | 排队的任务比处理器还多 |
+| 内存可用率 | > 30% | 10% - 30% | < 10% | 工作台快放不下了 |
+| Swap 使用率 | < 10% | 10% - 30% | > 30% | 备用工作台用多了，说明主工作台不够 |
+| 磁盘使用率 | < 70% | 70% - 85% | > 85% | 仓库快满了，需要清理 |
+| 磁盘 Inode 使用率 | < 70% | 70% - 85% | > 85% | 货位编号快用完了 |
+| 磁盘 I/O await | < 10ms | 10ms - 50ms | > 50ms | 读写等待时间太长 |
+| 僵尸进程数 | 0 | 1 - 10 | > 10 | 没清理的"尸体"太多了 |
+| 文件句柄使用率 | < 50% | 50% - 80% | > 80% | 打开的文件太多了 |
+| 网络连接数 | < 1000 | 1000 - 5000 | > 5000 | 连接太多了，可能有攻击 |
 
 ---
 
-## Common Scenarios (Playbook)
+## 常见场景 Playbook
 
-Step-by-step guides for the most common server problems.
+这里给你准备了 6 个最常见的故障排查手册，每个都有详细步骤。
 
-### Scenario 1: "My Server is Slow"
+### Playbook 1：服务器变慢了
 
 ```bash
-# Step 1: Run the health check to get a quick overview
-bash scripts/health-check.sh
+# 第 1 步：先看看整体资源
+top -bn1 | head -15                                # 看谁在占 CPU
+free -h                                            # 看内存够不够
+df -h                                              # 看磁盘满没满
 
-# Step 2: Check if CPU is overloaded
-# Look at load average — if it is higher than your core count, CPU is the bottleneck
-top -bn1 | head -5
+# 第 2 步：CPU 高？
+# 找出最占 CPU 的进程
+ps aux --sort=-%cpu | head -11                     # CPU 排行榜
 
-# Step 3: Check if memory is full (causing slow swap usage)
-free -m
-# If "available" is very low and swap is high, memory is the bottleneck
+# 第 3 步：内存高？
+# 找出最占内存的进程
+ps aux --sort=-%mem | head -11                     # 内存排行榜
 
-# Step 4: Check if disk I/O is slow
-iostat -xz 1 3
-# If "%util" is high (above 80-90%), disk is the bottleneck
+# 第 4 步：磁盘 I/O 高？
+iostat -x 1 3                                     # 看磁盘 I/O
+iotop                                              # 看谁在读写磁盘（需安装）
 
-# Step 5: Find the top CPU-consuming process
-ps aux --sort=-%cpu | head -5
+# 第 5 步：Swap 用多了？
+free -h | grep Swap                               # 看 Swap 使用量
+# 如果 Swap 用得多，说明内存不够
 
-# Step 6: Find the top memory-consuming process
-ps aux --sort=-%mem | head -5
-
-# Step 7: If a specific process is the problem, consider restarting it
-# systemctl restart <service-name>
+# 第 6 步：根据结果处理
+# 如果是某个进程占资源太多，考虑重启它
+# 如果是内存不够，考虑加内存或优化程序
+# 如果是磁盘 I/O 高，看看是不是在写大日志
 ```
 
-### Scenario 2: "Disk is Almost Full"
+### Playbook 2：磁盘快满了
 
 ```bash
-# Step 1: Check which partitions are full
-df -h
+# 第 1 步：看哪个分区快满了
+df -h                                              # 找到 Use% 接近 100% 的分区
 
-# Step 2: Find the largest directories on the full partition
-# Replace "/" with the mount point that is full
-du -ah / 2>/dev/null | sort -rh | head -20
+# 第 2 步：找大目录
+du -h --max-depth=1 / | sort -rh | head -10       # 找最大的目录
 
-# Step 3: Common space hogs to check
-# Log files:
-du -sh /var/log/*
-# Docker:
-docker system df
-# Temporary files:
-du -sh /tmp/*
+# 第 3 步：进一步定位
+du -h --max-depth=1 /var | sort -rh | head -10    # 如果 /var 大，进一步看
 
-# Step 4: Clean up based on what you find
-# Clean old logs (keep the last 7 days):
-find /var/log -name "*.log" -mtime +7 -delete
+# 第 4 步：常见占用大户
+# /var/log — 日志文件
+ls -lhS /var/log/ | head -10                      # 找最大的日志文件
+# /var/lib/docker — Docker 数据
+docker system df                                   # 看 Docker 占了多少
 
-# Clean Docker (safe cleanup):
-docker system prune -f
+# 第 5 步：清理
+# 清理旧日志
+journalctl --vacuum-size=200M                      # 日志只保留 200M
+# 清理大日志文件（不要直接 rm，用 truncate）
+truncate -s 0 /var/log/big-file.log                # 清空日志文件但保留文件
 
-# Clean old Docker images not in use:
-docker image prune -a -f
+# 清理 Docker
+docker system prune -a                             # 清理 Docker 无用资源
 
-# Clean journal logs older than 3 days:
-sudo journalctl --vacuum-time=3d
+# 第 6 步：检查 Inode
+df -i                                             # 如果磁盘没用完但 Inode 满了
+find / -xdev -type f | cut -d/ -f2 | sort | uniq -c | sort -rn | head
+# 找哪个目录文件数最多
 ```
 
-### Scenario 3: "A Service Crashed"
+### Playbook 3：服务挂了
 
 ```bash
-# Step 1: Check which services have failed
-systemctl --failed
+# 第 1 步：确认服务状态
+systemctl status nginx                             # 看服务状态
 
-# Step 2: Look at the failed service's logs
-# Replace "mysql" with your service name
-journalctl -u mysql --since "1 hour ago"
+# 第 2 步：看日志找原因
+journalctl -u nginx -n 100 --no-pager             # 看最近 100 条日志
 
-# Step 3: Try to restart the service
-systemctl restart mysql
+# 第 3 步：看配置有没有错
+nginx -t                                           # 测试配置（各服务有各自的检测命令）
 
-# Step 4: Check if it stays running
-systemctl status mysql
+# 第 4 步：看端口是否被占用
+ss -tlnp | grep :80                                # 看 80 端口被谁占了
 
-# Step 5: If it keeps crashing, look for the root cause in the logs
-# Common causes: out of memory, configuration error, missing files, port conflict
-journalctl -u mysql -p err --since "1 hour ago"
+# 第 5 步：看相关资源
+df -h                                              # 磁盘满没？
+free -h                                            # 内存够不够？
 
-# Step 6: Check if the port is already in use by something else
-ss -tlnp | grep 3306
+# 第 6 步：尝试重启
+systemctl restart nginx                            # 重启服务
+
+# 第 7 步：如果重启失败
+journalctl -u nginx -n 50 --no-pager               # 再看日志
+# 检查配置文件语法
+# 检查依赖服务（比如数据库）是否正常
 ```
 
-### Scenario 4: "Docker Container Keeps Restarting"
+### Playbook 4：Docker 容器一直重启
 
 ```bash
-# Step 1: Check the container status
-docker ps -a | grep myapp
+# 第 1 步：看容器状态
+docker ps -a                                       # 看容器状态（注意看 STATUS 列）
 
-# Step 2: View the container logs to find the error
-docker logs --tail 50 myapp
+# 第 2 步：看容器日志
+docker logs my-container --tail 100                # 看最近 100 行日志
 
-# Step 3: Check if it was killed for out-of-memory
-docker inspect myapp | grep -A5 "State"
-# Look for "OOMKilled": true
+# 第 3 步：看退出码
+docker inspect my-container | grep -A 5 "State"    # 看退出码和原因
 
-# Step 4: Check Docker events for the restart reason
-docker events --since 30m --until 0s --filter container=myapp
+# 第 4 步：常见原因
+# 退出码 137 = 内存不足被杀
+# 退出码 1 = 应用内部错误
+# 退出码 0 = 正常退出但没前台进程
 
-# Step 5: If OOMKilled, increase memory limit
-# Stop the container, then run with more memory:
-docker run -d --name myapp --memory=1g -p 8080:80 myapp-image
+# 第 5 步：如果是内存不足
+docker stats                                       # 看容器内存使用
+# 增加内存限制
+docker update --memory=2g my-container             # 把内存限制调到 2G
 
-# Step 6: If it is a different error, fix the application issue and rebuild
-# docker compose up -d --build
+# 第 6 步：如果是应用错误
+docker logs my-container 2>&1 | grep -i error      # 搜索错误关键词
+
+# 第 7 步：临时进入容器排查
+docker run -it --rm --entrypoint /bin/sh my-image  # 用镜像启动一个新的容器进去看
 ```
 
-### Scenario 5: "High Memory Usage"
+### Playbook 5：内存占用过高
 
 ```bash
-# Step 1: Check overall memory
-free -m
-# Focus on "available" — this is what apps can actually use
+# 第 1 步：看内存总览
+free -h                                            # 看整体内存情况
 
-# Step 2: Find the biggest memory consumers
-ps aux --sort=-%mem | head -11
+# 第 2 步：找最占内存的进程
+ps aux --sort=-%mem | head -11                     # 内存排行榜
 
-# Step 3: Check if swap is being heavily used (sign of memory pressure)
-free -m | grep Swap
+# 第 3 步：看进程详情
+top -p 1234                                        # 看 PID 1234 的详情
 
-# Step 4: Check if any process is leaking memory (growing over time)
-# Watch memory usage of a specific process over time:
-pidstat -p <PID> 1 10    # 10 samples, 1 second apart
+# 第 4 步：看 Swap 使用
+cat /proc/swaps                                    # 看 Swap 详情
+vmstat 1 5                                         # 看 swap in/out 情况
 
-# Step 5: If a process is using too much memory, restart it
-systemctl restart <service-name>
+# 第 5 步：处理
+# 如果是某个进程内存泄漏（内存一直涨不释放），考虑重启它
+systemctl restart my-service                       # 重启服务释放内存
 
-# Step 6: For Docker containers, set memory limits
-# docker run --memory=512m --memory-swap=1g ...
+# 如果是整体内存不够，考虑：
+# 1. 增加物理内存
+# 2. 优化程序减少内存使用
+# 3. 增加 Swap 空间
+sudo fallocate -l 4G /swapfile                    # 创建 4G 的 swap 文件
+sudo chmod 600 /swapfile                           # 设置权限
+sudo mkswap /swapfile                              # 格式化为 swap
+sudo swapon /swapfile                              # 启用 swap
 ```
 
-### Scenario 6: "Too Many Network Connections"
+### Playbook 6：网络连接异常多
 
 ```bash
-# Step 1: Count connections by state
+# 第 1 步：看连接数
+ss -s                                              # 看连接数摘要
+
+# 第 2 步：看哪些 IP 连接最多
+ss -ntu | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn | head -20
+
+# 第 3 步：看连接状态分布
 ss -ant | awk '{print $1}' | sort | uniq -c | sort -rn
+# 解释：统计各种连接状态的连接数
+```
 
-# Step 2: If TIME-WAIT is very high, the server is creating many short-lived connections
-# This can exhaust ephemeral ports
+期望输出：
 
-# Step 3: If CLOSE-WAIT is high, your application is not closing connections properly
-# This is a bug in the application code
+```
+    1200 ESTAB       # 正在通信
+     500 TIME-WAIT   # 等待关闭
+      30 CLOSE-WAIT  # 等对方关闭
+      10 SYN-RECV    # 收到连接请求
+```
 
-# Step 4: Find which IPs have the most connections
-ss -nt | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn | head -20
+```bash
+# 第 4 步：如果 TIME-WAIT 太多
+# 调整内核参数减少 TIME-WAIT
+sudo sysctl -w net.ipv4.tcp_fin_timeout=15         # 缩短等待时间（默认60秒）
 
-# Step 5: If one IP has an unusually high number of connections, it may be an attack
-# Block it with the firewall:
-# ufw deny from 203.0.113.42    # Ubuntu
-# firewall-cmd --add-rich-rule='rule family="ipv4" source address="203.0.113.42" reject' --permanent  # CentOS
-# firewall-cmd --reload
+# 第 5 步：如果 CLOSE-WAIT 太多
+# 说明程序没有正确关闭连接，是代码问题，需要修复
 
-# Step 6: Check current connection count
-ss -s
+# 第 6 步：如果是恶意 IP
+# 封禁 IP
+sudo iptables -A INPUT -s 1.2.3.4 -j DROP          # 封禁可疑 IP
+
+# 第 7 步：如果是 DDoS 攻击
+# 考虑使用 CDN（如 Cloudflare）或联系云服务商
+# 临时措施：限制单个 IP 连接数
+sudo iptables -A INPUT -p tcp --syn -m connlimit --connlimit-above 50 -j DROP
+# 解释：限制每个 IP 最多 50 个并发连接
 ```
 
 ---
 
 ## FAQ
 
-### 1. What does SRE mean?
+### 1. 我刚买了服务器，第一步该做什么？
 
-**SRE** stands for **Site Reliability Engineering**. It is a set of practices for keeping systems running reliably. SREs use automation, monitoring, and incident response procedures to minimize downtime. Think of it as a disciplined approach to server operations.
+1. 用 SSH 连上服务器：`ssh root@你的服务器IP`
+2. 更新系统：`sudo apt update && sudo apt upgrade -y`（Ubuntu/Debian）或 `sudo yum update -y`（CentOS/RHEL）
+3. 创建一个普通用户（不要一直用 root）：`adduser myuser && usermod -aG sudo myuser`
+4. 设置 SSH 密钥登录，禁用密码登录（更安全）
+5. 配置防火墙：`sudo ufw enable && sudo ufw allow 22 && sudo ufw allow 80 && sudo ufw allow 443`
+6. 运行巡检：`bash scripts/health-check.sh`
 
-### 2. I just got my first Linux server. Where do I start?
+### 2. health-check.sh 报权限不够怎么办？
 
-1. Log in via SSH: `ssh username@your-server-ip`
-2. Update your system: `sudo apt update && sudo apt upgrade -y` (Ubuntu/Debian) or `sudo yum update -y` (CentOS/RHEL)
-3. Run the health check: `bash scripts/health-check.sh --full`
-4. Read through the output to understand your server's current state
-5. Set up a firewall: `sudo ufw allow 22/tcp && sudo ufw enable` (Ubuntu)
-6. Bookmark this README for reference!
+```bash
+# 给脚本添加执行权限
+chmod +x scripts/health-check.sh                  # 让脚本可以被执行
+```
 
-### 3. Do I need root/sudo to use this toolkit?
+### 3. 我是 macOS 用户，能用这个工具集吗？
 
-Most monitoring commands work without root. However, some commands require `sudo`:
-- `ss -tlnp` (showing process names for all ports)
-- `iptables` / `ufw` / `firewall-cmd` (firewall management)
-- `docker` commands (your user must be in the `docker` group or use `sudo`)
-- `iotop` (disk I/O monitoring)
+可以！大部分命令在 macOS 上也能用，但有些略有不同：
+- `free` 命令 macOS 没有，用 `vm_stat` 代替或 `brew install coreutils` 后用 `gfree`
+- `ss` 命令 macOS 没有，用 `netstat` 代替
+- `systemctl` macOS 没有（macOS 用 `launchctl`）
+- 建议先安装 Homebrew：`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 
-### 4. The health check shows [WARN] or [FAIL]. What do I do?
+### 4. Docker 容器里时间不对怎么办？
 
-- **[WARN]** means a metric is approaching a problem level. You should investigate soon but it is not an emergency. Follow the relevant playbook scenario above.
-- **[FAIL]** means a critical threshold has been exceeded. Fix this as soon as possible. See the "Common Scenarios" section for step-by-step guides.
+```bash
+# 方法 1：运行时映射主机时区
+docker run -e TZ=Asia/Shanghai -v /etc/localtime:/etc/localtime:ro my-image
 
-### 5. What is the difference between memory "used" and memory "available"?
+# 方法 2：在 Dockerfile 里设置
+# ENV TZ=Asia/Shanghai
+# RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+```
 
-On Linux, "used" includes memory used for disk cache, which can be freed instantly if applications need it. "Available" is the real number you should look at — it tells you how much memory can be used right now. A server with 90% "used" memory but plenty of "available" memory is perfectly healthy.
+### 5. 怎么查看某个端口被谁占了？
 
-### 6. What is swap and should I worry about it?
+```bash
+# 查看 8080 端口被谁占了
+sudo lsof -i :8080                                # 显示占用 8080 端口的进程
 
-Swap is a portion of your hard disk used as overflow when RAM is full. Because disks are much slower than RAM, using swap makes your server slow. If your server is using a lot of swap, it needs more RAM or you need to reduce memory usage by optimizing or restarting applications.
+# 或者用 ss
+sudo ss -tlnp | grep :8080                        # 查看 8080 端口
+```
 
-### 7. What are zombie processes and are they dangerous?
+### 6. 服务器重启后服务没有自动启动怎么办？
 
-A zombie process is a process that has finished execution but still has an entry in the process table because its parent has not acknowledged its termination. They use almost no resources (just a process table entry). A few zombies are harmless, but many zombies (hundreds) can exhaust the process table. The real issue is that zombies indicate a bug in the parent program. To fix them, restart the parent process.
+```bash
+# 检查服务是否设置了开机自启
+systemctl is-enabled nginx                         # 看是否设置了自启
 
-### 8. Docker commands give "permission denied". How do I fix this?
+# 设置开机自启
+sudo systemctl enable nginx                        # 设置自启
+```
 
-By default, Docker requires root access. Two options:
-1. Use `sudo` before every Docker command: `sudo docker ps`
-2. Add your user to the Docker group (preferred): `sudo usermod -aG docker $USER`, then log out and log back in. **Warning**: This gives the user root-equivalent access via Docker.
+### 7. 日志文件太大怎么办？
 
-### 9. My server's load average is high but CPU usage is low. Why?
+```bash
+# 方法 1：清空日志（保留文件）
+truncate -s 0 /var/log/big-file.log               # 清空文件内容
 
-This can happen when many processes are waiting for disk I/O (not CPU). The load average counts processes waiting for any resource, including disk. Check disk I/O with `iostat -xz 1 3` — if `%util` is high, your disk is the bottleneck, not the CPU.
+# 方法 2：用 logrotate 自动管理（推荐）
+# 大多数系统已经配置了 logrotate，日志会自动轮转
 
-### 10. How do I know if my server has been hacked?
+# 方法 3：清理 journal 日志
+journalctl --vacuum-size=200M                      # 只保留 200M
+journalctl --vacuum-time=7d                        # 只保留 7 天
+```
 
-Warning signs include:
-- Unfamiliar processes running (check with `ps auxf`)
-- Unusual network connections to foreign IPs (check with `ss -nt`)
-- Unknown users or SSH keys in `~/.ssh/authorized_keys`
-- Missing or modified log files in `/var/log/`
-- New firewall rules you did not create (check with `ufw status` or `iptables -L -n`)
+### 8. 如何知道我的服务器是什么系统？
 
-Run `journalctl -u sshd --since "24 hours ago"` to check for suspicious SSH login attempts.
+```bash
+# 查看系统信息
+cat /etc/os-release                                # 显示系统版本信息
+uname -a                                           # 显示内核信息
+```
 
-### 11. How often should I run the health check?
+期望输出：
 
-- **Daily**: Run `--quick` mode as part of your morning routine
-- **Weekly**: Run `--full` mode for a complete picture
-- **After changes**: Run after any major configuration change, deployment, or update
-- **Automate**: Set up a cron job to run it daily and email you the results:
-  ```bash
-  # Add this to crontab (crontab -e) to run daily at 8 AM:
-  0 8 * * * /path/to/sre-skill/scripts/health-check.sh --quick | mail -s "Daily Health Check" admin@example.com
-  ```
+```
+PRETTY_NAME="Ubuntu 22.04.3 LTS"
+NAME="Ubuntu"
+VERSION_ID="22.04"
+ID=ubuntu
+```
 
-### 12. Can I use this toolkit on macOS?
+### 9. Docker 删不掉容器怎么办？
 
-Yes! The health check script automatically detects macOS and uses the appropriate commands (`vm_stat`, `sysctl`, `lsof`, etc.). However, macOS does not have systemd, so the service management and journalctl commands do not apply. Most other monitoring commands work with macOS-compatible alternatives.
+```bash
+# 先看容器状态
+docker ps -a | grep my-container                   # 查看容器状态
 
-### 13. How do I clean up Docker without breaking anything?
+# 如果是运行状态，先停
+docker stop my-container                           # 停止容器
 
-Start with the safest command and work up:
-1. `docker system prune -f` — removes stopped containers, dangling images, unused networks, build cache. Safe.
-2. `docker image prune -f` — removes only dangling (untagged) images. Very safe.
-3. `docker image prune -a -f` — removes all images not used by a running container. Safe if your containers use specific tags.
-4. `docker system prune -a -f` — everything above plus unused images. Careful: next `docker run` may need to re-download images.
-5. `docker volume prune -f` — removes unused volumes. **CAUTION**: this deletes data!
+# 如果停不下来，强制杀
+docker kill my-container                           # 强制停止
+
+# 再删除
+docker rm my-container                             # 删除容器
+
+# 还是不行？重启 Docker 服务
+sudo systemctl restart docker                      # 重启 Docker
+```
+
+### 10. 巡检显示 Swap 使用率高怎么办？
+
+Swap 使用率高说明物理内存不够用了：
+
+```bash
+# 第 1 步：看内存情况
+free -h                                            # 看物理内存和 Swap
+
+# 第 2 步：找最占内存的进程
+ps aux --sort=-%mem | head -11                     # 内存排行榜
+
+# 第 3 步：处理
+# 如果是某个进程占太多，考虑重启它
+# 如果是整体不够，考虑加内存或优化程序
+
+# 临时方案：清除 Swap（会把 Swap 里的数据移回内存，内存要够才行）
+sudo swapoff -a && sudo swapon -a                  # 先关再开 Swap，相当于清空
+```
+
+### 11. 如何防止服务器被暴力破解 SSH？
+
+```bash
+# 方法 1：改 SSH 端口（把默认 22 改成其他）
+sudo vim /etc/ssh/sshd_config                      # 编辑 SSH 配置
+# 找到 Port 22 改成 Port 2222
+sudo systemctl restart sshd                        # 重启 SSH 服务
+
+# 方法 2：禁止 root 直接登录
+# 在 /etc/ssh/sshd_config 里设置 PermitRootLogin no
+
+# 方法 3：只允许密钥登录
+# 在 /etc/ssh/sshd_config 里设置 PasswordAuthentication no
+
+# 方法 4：安装 fail2ban 自动封禁暴力破解的 IP
+sudo apt install fail2ban -y                       # 安装 fail2ban
+sudo systemctl enable --now fail2ban               # 启动并设置自启
+```
+
+### 12. 巡检报告里某项标红怎么办？
+
+1. 不要慌，先看是哪个指标
+2. 对照"告警阈值参考"表，判断严重程度
+3. 在"常见场景 Playbook"中找到对应的排查步骤
+4. 按步骤排查和处理
 
 ---
 
-## Contributing
+## 贡献指南
 
-We welcome contributions! Here is how you can help:
+我们欢迎所有人参与贡献！无论你是运维老手还是刚入门的新人，都可以帮忙：
 
-1. **Fork** the repository on GitHub
-2. **Clone** your fork: `git clone git@github.com:your-username/sre-skill.git`
-3. **Create a branch** for your changes: `git checkout -b my-new-feature`
-4. **Make your changes** and test them
-5. **Commit** with a clear message: `git commit -m "Add: description of my feature"`
-6. **Push** to your fork: `git push origin my-new-feature`
-7. **Open a Pull Request** on GitHub with a description of your changes
+### 如何贡献
 
-### Contribution Ideas
+1. **Fork 本仓库**：在 GitHub 页面点击右上角 "Fork" 按钮
+2. **克隆你的 Fork**：`git clone git@github.com:你的用户名/sre-skill.git`
+3. **创建分支**：`git checkout -b my-feature`
+4. **修改代码**：做出你的改动
+5. **测试**：确保改动没有破坏现有功能
+6. **提交**：`git add . && git commit -m "添加了 xxx 功能"`
+7. **推送**：`git push origin my-feature`
+8. **创建 Pull Request**：在 GitHub 上创建 PR，描述你的改动
 
-- Add new monitoring commands or scenarios
-- Improve macOS compatibility
-- Add support for other operating systems
-- Fix bugs or improve documentation
-- Add new health check features
-- Translate documentation to other languages
+### 贡献类型
 
-### Code Style
+- 🐛 报告 Bug：在 Issues 里提
+- 📝 完善文档：修正错误、补充说明
+- 🔧 添加功能：新的检查项、新的分析脚本
+- 🌍 翻译：帮助翻译成其他语言
+- 💡 提建议：在 Issues 里提新功能建议
 
-- Shell scripts should be compatible with bash
-- Use `set -uo pipefail` for safety
-- Comment your code — explain WHY, not just WHAT
-- Test on both Linux and macOS when possible
+### 代码规范
 
----
-
-## License
-
-This project is licensed under the **MIT License**. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the following condition:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
-
-See the [LICENSE](LICENSE) file for the full license text.
+- Shell 脚本使用 `#!/usr/bin/env bash` 开头
+- 函数和变量使用小写加下划线命名
+- 关键操作添加注释
+- 输出使用彩色标注（正常=绿色，警告=黄色，错误=红色）
 
 ---
 
-## Language / 语言
+## 协议
 
-This README is available in:
+本项目基于 [MIT 协议](https://opensource.org/licenses/MIT) 开源。
 
-- **English** (this file)
-- **中文 (Chinese)**: [README.md](README.md)
+简单来说：你可以随便用、随便改、随便分发，只要你保留原作者的版权声明就行。
 
 ---
 
-**Made with care by [dockercore](https://github.com/dockercore)**
+## 语言
+
+- [English](README.en.md)
+- **中文（当前）**
+

@@ -667,6 +667,6 @@ iptables -A INPUT -s <bad_ip> -j DROP
 
 ## Documentation / 文档
 
-- [English README](README.md)
-- [中文文档](README.zh-CN.md)
+- [English README](README.en.md)
+- [中文文档](README.md)
 - [MIT License](LICENSE)
