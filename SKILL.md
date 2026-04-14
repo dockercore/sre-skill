@@ -665,6 +665,150 @@ iptables -A INPUT -s <bad_ip> -j DROP
 
 ---
 
+---
+
+## Multi-Agent Integration / 多智能体集成
+
+This skill can be used in three popular AI agents. Below are quick-start instructions.
+此技能可在三大主流 AI 智能体中使用，以下是快速上手指南。
+
+### Claude Code (Anthropic)
+
+**Setup / 配置:**
+```bash
+# Add CLAUDE.md to your project root / 在项目根目录添加 CLAUDE.md
+cat >> CLAUDE.md << 'EOF'
+## SRE Ops-Toolkit
+Health check script: bash scripts/health-check.sh --full
+Key commands:
+- Quick check: bash scripts/health-check.sh --quick
+- Full check: bash scripts/health-check.sh --full
+- Help: bash scripts/health-check.sh --help
+EOF
+
+# Custom slash command / 自定义斜杠命令
+mkdir -p .claude/commands
+cat > .claude/commands/health-check.md << 'EOF'
+Run the server health check and analyze results:
+1. Execute: bash scripts/health-check.sh --full
+2. Analyze any [WARN] or [FAIL] items
+3. Suggest fixes for each issue found
+EOF
+
+# Custom SRE Agent / 自定义 SRE Agent
+mkdir -p .claude/agents
+cat > .claude/agents/sre-operator.md << 'EOF'
+---
+name: sre-operator
+description: SRE operations and health check agent
+model: sonnet
+tools: [Read, Bash]
+---
+You are an SRE operator. When asked about server health:
+1. Run health-check.sh with appropriate flags
+2. Analyze the output for warnings and failures
+3. Provide actionable fix recommendations
+4. For critical issues, suggest immediate mitigation steps
+EOF
+```
+
+**Usage / 使用:**
+```bash
+# Print mode (one-shot) / 一次性模式
+claude -p "运行服务器巡检并分析结果" --allowedTools 'Read,Bash' --max-turns 10
+
+# Interactive mode / 交互模式
+claude "帮我检查服务器健康状态，分析巡检报告"
+
+# With custom agent / 使用自定义 Agent
+claude "Use @sre-operator to run a full health check"
+
+# Slash command / 斜杠命令 (in interactive session)
+/health-check
+```
+
+### Hermes Agent (Nous Research)
+
+**Setup / 配置:**
+```bash
+# Method 1: Auto-install from hub / 从技能中心安装
+hermes skills search ops-toolkit
+hermes skills install ops-toolkit
+
+# Method 2: Manual copy / 手动复制
+cp -r ~/.hermes/skills/devops/ops-toolkit ~/.hermes/skills/devops/ops-toolkit
+```
+
+**Usage / 使用:**
+```bash
+# Load skill in session / 在会话中加载技能
+/skill ops-toolkit
+
+# Or start with skill preloaded / 启动时预加载技能
+hermes -s ops-toolkit
+
+# Delegate parallel SRE tasks / 委派并行 SRE 任务
+# (In Hermes session, use delegate_task tool to run health checks on multiple servers)
+
+# Cron job for scheduled checks / 定时巡检
+# (Use the cronjob tool to schedule regular health checks)
+```
+
+**Gateway Mode / 网关模式:**
+Run health checks from Telegram, Discord, Slack, WhatsApp, etc.
+从 Telegram、Discord、Slack、WhatsApp 等平台触发巡检。
+```bash
+# Start gateway / 启动网关
+hermes gateway run
+
+# Then in your messaging app, send:
+# "运行服务器巡检" or "run health check"
+```
+
+### OpenClaw
+
+**Setup / 配置:**
+```bash
+# Copy skill to OpenClaw workspace / 复制到 OpenClaw 工作区
+cp -r ~/.hermes/skills/devops/ops-toolkit ~/.openclaw/skills/ops-toolkit
+
+# Verify / 验证安装
+openclaw skills list
+openclaw skills info ops-toolkit
+```
+
+**Usage / 使用:**
+```bash
+# Run agent locally / 本地运行 Agent
+openclaw agent --local "运行健康巡检脚本 bash scripts/health-check.sh --full"
+
+# Send check report via messaging / 通过消息平台发送巡检报告
+openclaw message send --channel telegram --target @mychat --message "巡检报告：CPU 85% 警告"
+
+# Interactive mode / 交互模式
+openclaw agent --to +155****0123 --message "帮我检查服务器状态" --deliver
+```
+
+**Gateway Mode / 网关模式:**
+```bash
+# Start gateway / 启动网关
+openclaw gateway --port 18789
+
+# Then interact from your connected platform
+# 然后从已连接的平台上交互
+```
+
+### Comparison / 对比
+
+| Feature / 特性 | Claude Code | Hermes Agent | OpenClaw |
+|---|---|---|---|
+| Skill auto-load / 自动加载 | CLAUDE.md | ~/.hermes/skills/ | ~/.openclaw/skills/ |
+| Custom commands / 自定义命令 | .claude/commands/ | /skill + cron | openclaw skills |
+| Messaging platforms / 消息平台 | No | 15+ platforms | Multiple platforms |
+| Parallel tasks / 并行任务 | tmux sessions | delegate_task | openclaw agents |
+| Scheduled checks / 定时巡检 | External cron | Built-in cronjob | External cron |
+| Chinese support / 中文支持 | Partial | Full (bilingual) | Full (中文版) |
+
 ## Documentation / 文档
 
 - [English README](README.en.md)

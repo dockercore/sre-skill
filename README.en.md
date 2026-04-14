@@ -2186,6 +2186,611 @@ We welcome contributions! Here is how you can help:
 
 ---
 
+## Multi-Agent Integration Guide
+
+> This guide is for beginners, walking you step-by-step through integrating and using the SRE Ops-Toolkit skill across three major AI agents.
+> All commands can be copied and pasted directly.
+
+---
+
+### Table of Contents
+
+1. [Claude Code (Anthropic) Integration](#1-claude-code-anthropic-integration)
+2. [Hermes Agent (Nous Research) Integration](#2-hermes-agent-nous-research-integration)
+3. [OpenClaw Integration](#3-openclaw-integration)
+4. [Comparison Summary](#4-comparison-summary)
+
+---
+
+### 1. Claude Code (Anthropic) Integration
+
+#### 1.1 Overview
+
+Claude Code is Anthropic's command-line AI programming assistant that allows you to interact with Claude directly in the terminal. By adding a `CLAUDE.md` configuration file in your project root directory, Claude Code can automatically recognize SRE Ops-Toolkit skill instructions, enabling server health checks, troubleshooting, and other operations tasks.
+
+**Key Advantages:**
+- Supports one-shot execution (Print Mode) and interactive conversation (Interactive Mode)
+- Customizable slash commands and dedicated agents
+- Works with tmux for long-running, multi-turn debugging sessions
+
+#### 1.2 Installation & Configuration
+
+**Step 1: Create CLAUDE.md in your project root**
+
+`CLAUDE.md` is Claude Code's project-level instruction file, automatically read when Claude starts.
+
+```bash
+# Navigate to your project directory
+cd /path/to/your-project
+
+# Create CLAUDE.md
+cat > CLAUDE.md << 'EOF'
+# SRE Ops-Toolkit Skill Configuration
+
+## Available Skill Commands
+
+### Server Health Check
+- Run full health check: execute ops-toolkit's health-check command to check CPU, memory, disk, network, and other metrics
+- Check specific services: perform health checks on particular services (e.g., nginx, mysql, redis)
+
+### Troubleshooting
+- Analyze system logs: check key logs under /var/log and extract error information
+- Network connectivity test: perform ping, traceroute, port scanning, and other network diagnostics
+
+### Resource Analysis
+- Memory usage analysis: list top memory-consuming processes and identify memory leaks
+- Disk space analysis: check usage on each mount point and clean up temporary files
+
+## Work Guidelines
+- Must confirm before executing dangerous operations
+- Output inspection results in a structured format (table + summary)
+- Provide specific remediation suggestions when anomalies are detected
+EOF
+```
+
+**Step 2: Create custom slash commands**
+
+Slash commands let you trigger a health check with `/health-check` in one click, without writing long prompts every time.
+
+```bash
+# Create .claude/commands directory
+mkdir -p .claude/commands
+
+# Create health-check slash command
+cat > .claude/commands/health-check.md << 'EOF'
+Run an SRE server health check, performing the following checks:
+
+1. System basic info (hostname, kernel version, uptime)
+2. CPU usage and load
+3. Memory usage (including Swap)
+4. Disk space and usage
+5. Key service status (nginx, mysql, redis)
+6. Recent errors and warnings in system logs
+
+Organize the results into a table and provide a summary and risk alerts at the end.
+Arguments: $ARGUMENTS
+EOF
+```
+
+> **Note:** `$ARGUMENTS` will be replaced with "check web nodes" when you type `/health-check check web nodes`.
+
+**Step 3: Create a custom SRE Agent**
+
+A custom Agent can pre-configure a role, allowing Claude to focus on SRE operations scenarios.
+
+```bash
+# Create .claude/agents directory
+mkdir -p .claude/agents
+
+# Create SRE Operator Agent
+cat > .claude/agents/sre-operator.md << 'EOF'
+You are a senior SRE operations engineer, skilled in Linux server management and troubleshooting.
+
+## Responsibilities
+- Perform server health checks
+- Analyze system logs and metrics
+- Identify root causes of failures and provide remediation plans
+- Produce structured inspection reports
+
+## Work Principles
+1. Observe before acting: collect information first, then provide recommendations
+2. Safety first: require double confirmation for restart, delete, and similar operations
+3. Data-driven: all judgments based on actual metrics, no guessing
+4. Report format: use tables + severity markers (✅ Normal / ⚠️ Warning / ❌ Critical)
+
+## Common Command Library
+- System overview: `uname -a`, `uptime`, `hostnamectl`
+- CPU analysis: `top -bn1`, `mpstat`, `nproc`
+- Memory analysis: `free -h`, `vmstat`, `ps aux --sort=-%mem | head`
+- Disk analysis: `df -h`, `du -sh /var/log`, `iostat`
+- Network check: `ss -tlnp`, `netstat -an | grep ESTABLISHED | wc -l`
+- Service status: `systemctl status <service>`, `journalctl -u <service> --since "1 hour ago"`
+- Log analysis: `journalctl -p err --since "1 hour ago"`, `dmesg -T | grep -i error`
+EOF
+```
+
+#### 1.3 Basic Usage
+
+**Print Mode (one-shot execution)**
+
+Suitable for CI/CD pipelines, scheduled tasks, and other automation scenarios. Outputs results directly after execution.
+
+```bash
+# Basic health check: have Claude run a server health check and analyze the results
+claude -p "Run a server health check and analyze the results" --allowedTools 'Read,Bash' --max-turns 10
+
+# Health check with parameters: specify check scope
+claude -p "Perform a health check on nginx and mysql services, focusing on connection count and response time" --allowedTools 'Read,Bash' --max-turns 10
+
+# Output results to a file (suitable for archiving)
+claude -p "Run a full health check, output a JSON format report" --allowedTools 'Read,Bash' --max-turns 10 > /tmp/health-report-$(date +%Y%m%d).txt
+```
+
+> **Parameter explanations:**
+> - `-p`: Print mode, non-interactive, outputs results directly
+> - `--allowedTools`: Restricts the tools Claude can use (Read for reading files, Bash for executing commands)
+> - `--max-turns`: Maximum interaction turns, prevents infinite loops
+
+**Interactive Mode**
+
+Suitable for troubleshooting scenarios that require multi-turn conversation.
+
+```bash
+# Start interactive mode directly
+claude
+
+# Enter commands after starting
+> Run a server health check
+> (Claude executes and returns results)
+> Disk usage is over 80%, help me analyze which directories are using the most space
+> (Claude continues analyzing)
+```
+
+**Using slash commands**
+
+```bash
+# After starting Claude, enter a slash command directly
+claude
+> /health-check
+
+# Slash command with arguments
+> /health-check focus on checking database nodes
+```
+
+#### 1.4 Advanced Usage
+
+**Using tmux for multi-turn debugging**
+
+During server troubleshooting, you may need long-running, multi-turn conversations. Using tmux prevents session loss from SSH disconnections.
+
+```bash
+# Create a tmux session
+tmux new-session -d -s sre-debug
+
+# Start Claude interactive mode in tmux
+tmux send-keys -t sre-debug 'claude' Enter
+
+# Attach to the tmux session
+tmux attach -t sre-debug
+
+# Perform multi-turn debugging in Claude
+> Database connection timeout, help me troubleshoot
+> Check mysql connection count configuration and current connection status
+> Check the slow query log for recent slow queries
+> Provide optimization recommendations
+
+# Detach tmux (session keeps running in the background)
+# Press Ctrl+B then D
+
+# Reconnect
+tmux attach -t sre-debug
+```
+
+**Using the custom SRE Agent**
+
+```bash
+# Start the dedicated SRE operations Agent via the agent parameter
+claude --agent sre-operator
+
+# Or switch in interactive mode
+claude
+> /agent sre-operator
+> Production service response is slow, help me do a full health check
+```
+
+**Integrating scheduled health checks in CI/CD**
+
+```bash
+# crontab scheduled task: run health check every day at 9 AM
+crontab -e
+# Add the following line:
+0 9 * * * cd /path/to/project && claude -p "Run a daily health check, output warnings when anomalies are found" --allowedTools 'Read,Bash' --max-turns 10 >> /var/log/sre-daily-check.log 2>&1
+```
+
+#### 1.5 Example Scenario
+
+**Scenario: Production service alert, rapid troubleshooting**
+
+```bash
+# Step 1: One-click health check to quickly identify the problem
+claude -p "Received CPU alert, immediately run a health check: check CPU load, top processes, anomalies in system logs" --allowedTools 'Read,Bash' --max-turns 10
+
+# Step 2: If deeper investigation is needed, start interactive mode
+tmux new -s incident-debug
+claude --agent sre-operator
+> CPU load is as high as 32, top process is java, PID 12345
+> Analyze this Java process's thread stack and GC status
+> Check for OOM Killer records
+> Provide emergency handling plan
+
+# Step 3: After resolution, archive the inspection report
+claude -p "Generate a post-incident review report for this failure, including timeline, root cause, and remediation" --allowedTools 'Read,Bash' --max-turns 10 > /tmp/incident-report-$(date +%Y%m%d%H%M).md
+```
+
+---
+
+### 2. Hermes Agent (Nous Research) Integration
+
+#### 2.1 Overview
+
+Hermes Agent is an AI agent platform developed by Nous Research that supports a skill system, allowing you to extend capabilities by installing or copying skill packages. SRE Ops-Toolkit, as an official Hermes DevOps skill, supports advanced features such as session loading, task delegation, scheduled health checks, and Gateway Mode.
+
+**Key Advantages:**
+- Native skill system, install and use immediately
+- Supports `delegate_task` for parallel execution of multiple SRE tasks
+- Built-in Cron Job support
+- Gateway Mode can trigger health checks from Telegram/Discord/Slack
+
+#### 2.2 Installation & Configuration
+
+**Method 1: Install via command line (recommended)**
+
+```bash
+# Use hermes built-in install command
+hermes skills install ops-toolkit
+
+# Verify installation
+hermes skills list | grep ops-toolkit
+# Expected output: ops-toolkit    devops    SRE Operations Health Check Toolkit    ✅ Installed
+```
+
+**Method 2: Manually copy the skill package**
+
+If you don't have network access or need to make custom modifications, you can install manually:
+
+```bash
+# Create skill directory
+mkdir -p ~/.hermes/skills/devops/ops-toolkit/
+
+# Copy skill files (assuming you already have the ops-toolkit skill package)
+cp -r /path/to/ops-toolkit/* ~/.hermes/skills/devops/ops-toolkit/
+
+# Verify directory structure
+ls ~/.hermes/skills/devops/ops-toolkit/
+# Expected output: skill.yaml  commands/  templates/  README.md
+```
+
+#### 2.3 Basic Usage
+
+**Loading the skill in a session**
+
+```bash
+# Method 1: Load in interactive mode
+hermes
+> /skill ops-toolkit
+# Output: ✅ Skill ops-toolkit loaded, available commands: health-check, troubleshoot, resource-analyze
+
+# Method 2: Specify the skill at startup
+hermes -s ops-toolkit
+# Automatically loads the ops-toolkit skill after startup
+```
+
+**Running basic health checks**
+
+```bash
+# Start Hermes with the skill
+hermes -s ops-toolkit
+
+# Run a full health check
+> Run a server health check
+
+# Specify check items
+> Only check disk and memory usage
+
+# Check a specific service
+> Check the health status of the redis cluster
+```
+
+#### 2.4 Advanced Usage
+
+**Using delegate_task for parallel SRE task execution**
+
+`delegate_task` is Hermes's core capability, allowing you to dispatch multiple SRE tasks for parallel execution, significantly improving inspection efficiency.
+
+```bash
+hermes -s ops-toolkit
+
+# Parallel health check across multiple server dimensions
+> delegate_task: Execute the following tasks simultaneously:
+> 1. Check CPU and memory on all web nodes
+> 2. Check disk and connection count on database nodes
+> 3. Analyze system log errors on all nodes
+> Aggregate the report when complete
+
+# Or a more concise syntax
+> delegate_task parallel check web-group and db-group, compare resource usage between the two groups
+```
+
+> **How it works:** Hermes splits the task into multiple subtasks, assigns them to different sub-agents for parallel execution, and then aggregates the results.
+
+**Setting up scheduled health checks (Cron Job)**
+
+Use Cron Jobs to implement automatic scheduled health checks without manual triggering.
+
+```bash
+# Create a scheduled health check script
+cat > ~/.hermes/cron/health-check-hourly.sh << 'SCRIPT'
+#!/bin/bash
+# Hourly automatic health check script
+hermes -s ops-toolkit -c "Run a server health check, only output anomalies and warnings" \
+  --output /tmp/sre-hourly-$(date +%Y%m%d%H).md \
+  --quiet
+
+# If anomalies are found, send a notification (requires notification channel configuration)
+if grep -q "❌" /tmp/sre-hourly-$(date +%Y%m%d%H).md; then
+  hermes gateway notify --channel slack --message "⚠️ Anomalies found during health check, see /tmp/sre-hourly-$(date +%Y%m%d%H).md for details"
+fi
+SCRIPT
+
+chmod +x ~/.hermes/cron/health-check-hourly.sh
+
+# Add crontab
+crontab -e
+# Add: run every hour
+0 * * * * ~/.hermes/cron/health-check-hourly.sh >> /var/log/hermes-cron.log 2>&1
+
+# Simpler approach: run health check at 8 AM and 8 PM daily
+# 0 8,20 * * * hermes -s ops-toolkit -c "Run daily health check" --output /tmp/sre-check-$(date +\%Y\%m\%d).md
+```
+
+**Gateway Mode: Trigger health checks from chat platforms**
+
+Gateway Mode lets Hermes listen on messaging platforms, allowing you to trigger health checks from chat messages anytime, anywhere.
+
+```bash
+# Start Hermes Gateway
+hermes gateway start --skills ops-toolkit
+
+# Configure messaging platform connections
+hermes gateway config --platform telegram --token "YOUR_TELEGRAM_BOT_TOKEN"
+hermes gateway config --platform discord --webhook-url "YOUR_DISCORD_WEBHOOK_URL"
+hermes gateway config --platform slack --webhook-url "YOUR_SLACK_WEBHOOK_URL"
+```
+
+Triggering health checks from chat platforms:
+
+```
+# Send messages in Telegram / Discord / Slack:
+/health-check
+/health-check
+/check database
+
+# Hermes automatically executes the health check upon receiving the message and returns the results
+# Bot replies:
+# ✅ CPU: 32% | ⚠️ Memory: 82% | ✅ Disk: 45% | ❌ MySQL: connection limit exceeded
+# Recommendation: MySQL connections have reached 480/500, consider checking slow queries or increasing max_connections
+```
+
+#### 2.5 Example Scenario
+
+**Scenario: Multi-cluster daily health check + instant alerting**
+
+```bash
+# Step 1: Start Hermes and load the skill
+hermes -s ops-toolkit
+
+# Step 2: Parallel health check across multiple clusters
+> delegate_task: Simultaneously run health checks on the following clusters
+> - cluster-cn-east: check CPU, memory, disk
+> - cluster-cn-south: check service status and network
+> - cluster-us-west: check database connections and slow queries
+> Output a comparison report, highlighting anomalies
+
+# Step 3: Set up Gateway for instant alerting
+hermes gateway start --skills ops-toolkit --platform telegram --token "BOT_TOKEN"
+
+# Step 4: View from your phone via Telegram anytime
+# Send: /health-check cluster-cn-east
+# Bot instantly returns health check results
+```
+
+---
+
+### 3. OpenClaw Integration
+
+#### 3.1 Overview
+
+OpenClaw is an open-source AI Agent framework that supports local skill extensions and gateway mode. SRE Ops-Toolkit can be installed as a local skill in the OpenClaw workspace, allowing you to run health checks locally via `openclaw agent --local`, or trigger them remotely from messaging platforms via Gateway Mode.
+
+**Key Advantages:**
+- Pure local execution, no cloud dependencies
+- Lightweight skill management
+- Supports triggering from Telegram/Discord/Slack and other platforms
+
+#### 3.2 Installation & Configuration
+
+**Step 1: Copy the skill to the OpenClaw workspace**
+
+```bash
+# Create OpenClaw skill directory
+mkdir -p ~/.openclaw/skills/ops-toolkit/
+
+# Copy skill files
+cp -r /path/to/ops-toolkit/* ~/.openclaw/skills/ops-toolkit/
+
+# Confirm files have been copied
+ls ~/.openclaw/skills/ops-toolkit/
+# Expected output: skill.yaml  commands/  README.md
+```
+
+**Step 2: Verify the skill is installed**
+
+```bash
+# List installed skills
+openclaw skills list
+
+# Expected output:
+# NAME          CATEGORY    STATUS
+# ops-toolkit   devops      ✅ installed
+```
+
+If it doesn't appear, check that the directory path is correct:
+
+```bash
+# Confirm directory structure
+tree ~/.openclaw/skills/ops-toolkit/
+# Should contain the skill.yaml configuration file
+```
+
+#### 3.3 Basic Usage
+
+**Running a local health check**
+
+```bash
+# Run a health check using local mode
+openclaw agent --local --skill ops-toolkit --prompt "Run a server health check"
+
+# Shorter syntax (if the skill is loaded by default)
+openclaw agent --local "Check system resource usage"
+```
+
+**Interactive health check**
+
+```bash
+# Start local interactive mode
+openclaw agent --local --interactive
+
+# Enter commands after starting
+> Run disk space analysis
+> Check nginx and mysql service status
+> Analyze error logs from the last hour
+```
+
+#### 3.4 Advanced Usage
+
+**Gateway Mode: Trigger health checks from messaging platforms**
+
+After configuring the OpenClaw Gateway, you can trigger health checks from Telegram/Discord/Slack via messages.
+
+```bash
+# Start OpenClaw Gateway
+openclaw gateway start --skills ops-toolkit
+
+# Configure messaging platforms
+openclaw gateway config --channel telegram --token "YOUR_BOT_TOKEN"
+openclaw gateway config --channel discord --webhook "YOUR_WEBHOOK_URL"
+openclaw gateway config --channel slack --webhook "YOUR_WEBHOOK_URL"
+```
+
+After triggering from a chat platform, OpenClaw executes the health check and sends the results via message:
+
+```bash
+# Proactively send a health check report to a specified chat from the command line
+openclaw message send --channel telegram --target @mychat --message "Health check report"
+
+# Send a full report
+openclaw message send --channel discord --target #ops-alerts --message "Daily health check report has been generated, please see the attachment"
+```
+
+**Chat platform interaction example**
+
+```
+User: /health-check
+OpenClaw Bot: 🔍 Running server health check...
+OpenClaw Bot: ✅ CPU: 28% | ✅ Memory: 65% | ⚠️ Disk /data: 78% | ✅ nginx: running | ✅ mysql: running
+OpenClaw Bot: ⚠️ Note: /data partition usage is approaching the 80% threshold, consider cleaning up old logs.
+
+User: /check mysql
+OpenClaw Bot: 🔍 Checking MySQL...
+OpenClaw Bot: ✅ Service status: running (uptime 45d)
+OpenClaw Bot: ✅ Current connections: 320/500
+OpenClaw Bot: ⚠️ Slow queries: 12 in the last hour (>1s)
+OpenClaw Bot: ✅ Replication lag: 0s
+```
+
+**Scheduled health checks (Cron)**
+
+```bash
+# Create a scheduled health check script
+cat > /tmp/openclaw-daily-check.sh << 'SCRIPT'
+#!/bin/bash
+REPORT=$(openclaw agent --local --skill ops-toolkit --prompt "Run a daily health check, only output anomalies" 2>/dev/null)
+
+if [ -n "$REPORT" ]; then
+  # Send to Telegram
+  openclaw message send --channel telegram --target @sre-alerts --message "$REPORT"
+fi
+SCRIPT
+
+chmod +x /tmp/openclaw-daily-check.sh
+
+# Add crontab: run every day at 9 AM
+crontab -e
+# Add:
+0 9 * * * /tmp/openclaw-daily-check.sh
+```
+
+#### 3.5 Example Scenario
+
+**Scenario: Remote health check from Telegram and get a report**
+
+```bash
+# Step 1: Make sure OpenClaw Gateway is running
+openclaw gateway start --skills ops-toolkit --channel telegram --token "BOT_TOKEN"
+
+# Step 2: Open Telegram on your phone and send commands to the Bot
+# /health-check
+# /health-check full
+# /check redis
+
+# Step 3: If you need to proactively push a report
+openclaw agent --local --skill ops-toolkit --prompt "Run a full health check" > /tmp/report.md
+openclaw message send --channel telegram --target @mychat --message "📋 Today's health check report" --attach /tmp/report.md
+
+# Step 4: Instant notification during incidents
+openclaw agent --local --skill ops-toolkit --prompt "Disk alert detected, immediately analyze large files on /data partition" > /tmp/disk-alert.md
+openclaw message send --channel slack --target #incident --message "🚨 Disk alert details" --attach /tmp/disk-alert.md
+```
+
+---
+
+### 4. Comparison Summary
+
+| Feature | Claude Code | Hermes Agent | OpenClaw |
+|---------|-------------|--------------|----------|
+| **Installation** | Project root `CLAUDE.md` | `hermes skills install` or manual copy | Manual copy to `~/.openclaw/skills/` |
+| **One-shot execution** | `claude -p "command"` | `hermes -s ops-toolkit -c "command"` | `openclaw agent --local "command"` |
+| **Interactive mode** | `claude` | `hermes` + `/skill ops-toolkit` | `openclaw agent --local --interactive` |
+| **Parallel tasks** | Not natively supported | `delegate_task` natively supported | Not natively supported |
+| **Scheduled health checks** | crontab + `claude -p` | Built-in Cron support | crontab + `openclaw agent --local` |
+| **Messaging platform integration** | Not supported | Gateway Mode (Telegram/Discord/Slack) | Gateway Mode (Telegram/Discord/Slack) |
+| **Custom commands** | Slash Command (`.claude/commands/`) | Skill built-in commands | Skill built-in commands |
+| **Custom Agent** | `.claude/agents/` | Skill configuration | None |
+| **Best suited for** | Dev environments, CI/CD | Multi-cluster ops, team collaboration | Lightweight local ops, messaging integration |
+| **Learning curve** | ⭐ Easy | ⭐⭐ Moderate | ⭐ Easy |
+
+#### Quick Selection Guide
+
+- **Individual developers / small teams** → Choose **Claude Code**, simple setup, use directly in the terminal
+- **Mid-to-large SRE teams** → Choose **Hermes Agent**, parallel tasks + scheduled health checks + messaging notifications all in one
+- **Need messaging platform integration / pure local execution** → Choose **OpenClaw**, lightweight + Gateway Mode
+
+---
+
+> 💡 **Tip:** The three agents are not mutually exclusive — you can mix and match based on your scenario. For example: use Claude Code for quick troubleshooting during daily development, Hermes Agent for parallel production health checks, and OpenClaw Gateway for on-the-go monitoring from your phone.
+
+---
+
 ## License
 
 This project is licensed under the **MIT License**. You are free to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the software, subject to the following condition:

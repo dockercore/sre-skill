@@ -1954,6 +1954,612 @@ sudo systemctl enable --now fail2ban               # 启动并设置自启
 
 ---
 
+---
+
+# SRE Ops-Toolkit 多智能体集成指南
+
+> 本指南面向初学者，手把手教你如何在三大 AI 智能体（Agent）中集成和使用 SRE Ops-Toolkit 技能。
+> 所有命令均可直接复制粘贴使用。
+
+---
+
+## 目录
+
+1. [Claude Code (Anthropic) 集成](#1-claude-code-anthropic-集成)
+2. [Hermes Agent (Nous Research) 集成](#2-hermes-agent-nous-research-集成)
+3. [OpenClaw 集成](#3-openclaw-集成)
+4. [对比总结](#4-对比总结)
+
+---
+
+## 1. Claude Code (Anthropic) 集成
+
+### 1.1 概述
+
+Claude Code 是 Anthropic 推出的命令行 AI 编程助手，支持在终端中直接与 Claude 交互。通过在项目根目录添加 `CLAUDE.md` 配置文件，可以让 Claude Code 自动识别 SRE Ops-Toolkit 的技能指令，实现服务器巡检、故障排查等运维操作。
+
+**核心优势：**
+- 支持一次性命令（Print Mode）和交互式对话（Interactive Mode）
+- 可自定义斜杠命令（Slash Command）和专用 Agent
+- 与 tmux 配合可实现长时间多轮调试
+
+### 1.2 安装配置
+
+#### 第一步：在项目根目录创建 CLAUDE.md
+
+`CLAUDE.md` 是 Claude Code 的项目级指令文件，Claude 启动时会自动读取。
+
+```bash
+# 进入你的项目目录
+cd /path/to/your-project
+
+# 创建 CLAUDE.md
+cat > CLAUDE.md << 'EOF'
+# SRE Ops-Toolkit 技能配置
+
+## 可用技能指令
+
+### 服务器巡检 (Health Check)
+- 运行全量巡检：执行 ops-toolkit 的 health-check 命令，检查 CPU、内存、磁盘、网络等指标
+- 巡检指定服务：对特定服务（如 nginx、mysql、redis）执行健康检查
+
+### 故障排查 (Troubleshooting)
+- 分析系统日志：检查 /var/log 下的关键日志，提取异常信息
+- 网络连通性检测：执行 ping、traceroute、端口扫描等网络诊断
+
+### 资源分析 (Resource Analysis)
+- 内存使用分析：列出内存占用 Top 进程，识别内存泄漏
+- 磁盘空间分析：检查各挂载点使用率，清理临时文件
+
+## 工作规范
+- 执行危险操作前必须先确认
+- 巡检结果以结构化格式输出（表格 + 总结）
+- 发现异常时给出具体修复建议
+EOF
+```
+
+#### 第二步：创建自定义斜杠命令
+
+斜杠命令让你用 `/health-check` 一键触发巡检，无需每次手写长提示词。
+
+```bash
+# 创建 .claude/commands 目录
+mkdir -p .claude/commands
+
+# 创建 health-check 斜杠命令
+cat > .claude/commands/health-check.md << 'EOF'
+运行 SRE 服务器巡检，执行以下检查项：
+
+1. 系统基础信息（主机名、内核版本、运行时长）
+2. CPU 使用率和负载
+3. 内存使用情况（含 Swap）
+4. 磁盘空间和使用率
+5. 关键服务状态（nginx、mysql、redis）
+6. 最近系统日志中的错误和警告
+
+请将结果整理为表格，并在末尾给出总结和风险提示。
+参数: $ARGUMENTS
+EOF
+```
+
+> **说明：** `$ARGUMENTS` 会在你输入 `/health-check 检查web节点` 时被替换为"检查web节点"。
+
+#### 第三步：创建自定义 SRE Agent
+
+自定义 Agent 可预置角色设定，让 Claude 专注于 SRE 运维场景。
+
+```bash
+# 创建 .claude/agents 目录
+mkdir -p .claude/agents
+
+# 创建 SRE Operator Agent
+cat > .claude/agents/sre-operator.md << 'EOF'
+你是一名资深 SRE 运维工程师，擅长 Linux 服务器管理和故障排查。
+
+## 职责
+- 执行服务器健康巡检
+- 分析系统日志和指标
+- 定位故障根因并提供修复方案
+- 输出结构化的巡检报告
+
+## 工作原则
+1. 先观察后操作：先收集信息，再给出建议
+2. 安全第一：涉及重启、删除等操作需二次确认
+3. 数据驱动：所有判断基于实际指标，不猜测
+4. 报告格式：使用表格 + 等级标记（✅ 正常 / ⚠️ 警告 / ❌ 异常）
+
+## 常用命令库
+- 系统概览：`uname -a`, `uptime`, `hostnamectl`
+- CPU 分析：`top -bn1`, `mpstat`, `nproc`
+- 内存分析：`free -h`, `vmstat`, `ps aux --sort=-%mem | head`
+- 磁盘分析：`df -h`, `du -sh /var/log`, `iostat`
+- 网络检测：`ss -tlnp`, `netstat -an | grep ESTABLISHED | wc -l`
+- 服务状态：`systemctl status <service>`, `journalctl -u <service> --since "1 hour ago"`
+- 日志分析：`journalctl -p err --since "1 hour ago"`, `dmesg -T | grep -i error`
+EOF
+```
+
+### 1.3 基本用法
+
+#### Print Mode（一次性执行）
+
+适合 CI/CD 流水线、定时任务等自动化场景。执行完毕直接输出结果。
+
+```bash
+# 基础巡检：让 Claude 执行服务器巡检并分析结果
+claude -p "运行服务器巡检并分析结果" --allowedTools 'Read,Bash' --max-turns 10
+
+# 带参数的巡检：指定检查范围
+claude -p "对 nginx 和 mysql 服务执行健康检查，重点关注连接数和响应时间" --allowedTools 'Read,Bash' --max-turns 10
+
+# 输出结果到文件（适合归档）
+claude -p "运行完整巡检，输出 JSON 格式报告" --allowedTools 'Read,Bash' --max-turns 10 > /tmp/health-report-$(date +%Y%m%d).txt
+```
+
+> **参数说明：**
+> - `-p`：Print 模式，非交互式，直接输出结果
+> - `--allowedTools`：限制 Claude 可使用的工具（Read 读文件、Bash 执行命令）
+> - `--max-turns`：最大交互轮次，防止无限循环
+
+#### Interactive Mode（交互式对话）
+
+适合需要多轮对话的故障排查场景。
+
+```bash
+# 直接启动交互模式
+claude
+
+# 进入后输入指令
+> 运行服务器巡检
+> （Claude 执行后返回结果）
+> 磁盘使用率超过 80% 了，帮我分析哪些目录占用最大
+> （Claude 继续分析）
+```
+
+#### 使用斜杠命令
+
+```bash
+# 启动 Claude 后，直接输入斜杠命令
+claude
+> /health-check
+
+# 带参数的斜杠命令
+> /health-check 重点检查数据库节点
+```
+
+### 1.4 高级用法
+
+#### 配合 tmux 进行多轮调试
+
+在服务器故障排查时，可能需要长时间多轮对话。配合 tmux 可以防止 SSH 断连导致会话丢失。
+
+```bash
+# 创建 tmux 会话
+tmux new-session -d -s sre-debug
+
+# 在 tmux 中启动 Claude 交互模式
+tmux send-keys -t sre-debug 'claude' Enter
+
+# 附加到 tmux 会话
+tmux attach -t sre-debug
+
+# 在 Claude 中进行多轮调试
+> 数据库连接超时，帮我排查原因
+> 检查 mysql 的连接数配置和当前连接状态
+> 查看 slow query log 中最近的慢查询
+> 给出优化建议
+
+# 断开 tmux（会话保持后台运行）
+# 按 Ctrl+B 然后按 D
+
+# 重新连接
+tmux attach -t sre-debug
+```
+
+#### 使用自定义 SRE Agent
+
+```bash
+# 通过 Agent 参数启动专用 SRE 运维 Agent
+claude --agent sre-operator
+
+# 或在交互模式中切换
+claude
+> /agent sre-operator
+> 线上服务响应变慢，帮我做一次全面巡检
+```
+
+#### 在 CI/CD 中集成定时巡检
+
+```bash
+# crontab 定时任务：每天早上 9 点执行巡检
+crontab -e
+# 添加以下行：
+0 9 * * * cd /path/to/project && claude -p "运行日常巡检，发现异常时输出警告" --allowedTools 'Read,Bash' --max-turns 10 >> /var/log/sre-daily-check.log 2>&1
+```
+
+### 1.5 示例场景
+
+#### 场景：线上服务告警，快速排查
+
+```bash
+# 第一步：一键巡检，快速定位问题
+claude -p "收到 CPU 告警，立即执行巡检：检查 CPU 负载、Top 进程、系统日志中的异常" --allowedTools 'Read,Bash' --max-turns 10
+
+# 第二步：如果需要深入排查，启动交互模式
+tmux new -s incident-debug
+claude --agent sre-operator
+> CPU 负载高达 32，Top 进程是 java，PID 12345
+> 分析这个 Java 进程的线程栈和 GC 情况
+> 检查是否有 OOM Killer 记录
+> 给出紧急处理方案
+
+# 第三步：处理完毕，归档巡检报告
+claude -p "生成本次故障的复盘报告，包括时间线、根因、修复措施" --allowedTools 'Read,Bash' --max-turns 10 > /tmp/incident-report-$(date +%Y%m%d%H%M).md
+```
+
+---
+
+## 2. Hermes Agent (Nous Research) 集成
+
+### 2.1 概述
+
+Hermes Agent 是 Nous Research 开发的 AI 智能体平台，支持技能（Skill）系统，可通过安装或复制技能包扩展能力。SRE Ops-Toolkit 作为 Hermes 的官方 DevOps 技能，支持会话加载、任务委派、定时巡检和网关模式（Gateway Mode）等高级功能。
+
+**核心优势：**
+- 原生技能系统，安装即用
+- 支持 `delegate_task` 并行执行多个 SRE 任务
+- 内置定时任务（Cron Job）支持
+- Gateway 模式可从 Telegram/Discord/Slack 触发巡检
+
+### 2.2 安装配置
+
+#### 方式一：通过命令行安装（推荐）
+
+```bash
+# 使用 hermes 内置安装命令
+hermes skills install ops-toolkit
+
+# 验证安装
+hermes skills list | grep ops-toolkit
+# 预期输出：ops-toolkit    devops    SRE 运维巡检工具包    ✅ 已安装
+```
+
+#### 方式二：手动复制技能包
+
+如果网络不通或需要自定义修改，可以手动安装：
+
+```bash
+# 创建技能目录
+mkdir -p ~/.hermes/skills/devops/ops-toolkit/
+
+# 复制技能文件（假设你已有 ops-toolkit 技能包）
+cp -r /path/to/ops-toolkit/* ~/.hermes/skills/devops/ops-toolkit/
+
+# 验证目录结构
+ls ~/.hermes/skills/devops/ops-toolkit/
+# 预期输出：skill.yaml  commands/  templates/  README.md
+```
+
+### 2.3 基本用法
+
+#### 在会话中加载技能
+
+```bash
+# 方式一：交互模式中加载
+hermes
+> /skill ops-toolkit
+# 输出：✅ 技能 ops-toolkit 已加载，可用命令：health-check, troubleshoot, resource-analyze
+
+# 方式二：启动时直接指定技能
+hermes -s ops-toolkit
+# 启动后自动加载 ops-toolkit 技能
+```
+
+#### 执行基础巡检
+
+```bash
+# 启动带技能的 Hermes
+hermes -s ops-toolkit
+
+# 执行全量巡检
+> 执行服务器健康巡检
+
+# 指定巡检项
+> 只检查磁盘和内存使用情况
+
+# 对特定服务巡检
+> 检查 redis 集群的健康状态
+```
+
+### 2.4 高级用法
+
+#### 使用 delegate_task 并行执行 SRE 任务
+
+`delegate_task` 是 Hermes 的核心能力，允许将多个 SRE 任务并行分发执行，大幅提升巡检效率。
+
+```bash
+hermes -s ops-toolkit
+
+# 并行巡检多台服务器的不同维度
+> delegate_task: 同时执行以下任务：
+> 1. 检查所有 web 节点的 CPU 和内存
+> 2. 检查数据库节点的磁盘和连接数
+> 3. 分析所有节点的系统日志错误
+> 完成后汇总报告
+
+# 或者更简洁的写法
+> delegate_task 并行巡检 web-group 和 db-group，对比两组的资源使用情况
+```
+
+> **原理：** Hermes 会将任务拆分为多个子任务，分配给不同的子 Agent 并行执行，最后汇总结果。
+
+#### 设置定时巡检（Cron Job）
+
+通过 Cron Job 实现定时自动巡检，无需人工触发。
+
+```bash
+# 创建定时巡检脚本
+cat > ~/.hermes/cron/health-check-hourly.sh << 'SCRIPT'
+#!/bin/bash
+# 每小时自动巡检脚本
+hermes -s ops-toolkit -c "执行服务器巡检，只输出异常项和警告" \
+  --output /tmp/sre-hourly-$(date +%Y%m%d%H).md \
+  --quiet
+
+# 如果有异常，发送通知（需配置通知渠道）
+if grep -q "❌" /tmp/sre-hourly-$(date +%Y%m%d%H).md; then
+  hermes gateway notify --channel slack --message "⚠️ 巡检发现异常，详情见 /tmp/sre-hourly-$(date +%Y%m%d%H).md"
+fi
+SCRIPT
+
+chmod +x ~/.hermes/cron/health-check-hourly.sh
+
+# 添加 crontab
+crontab -e
+# 添加：每小时执行一次
+0 * * * * ~/.hermes/cron/health-check-hourly.sh >> /var/log/hermes-cron.log 2>&1
+
+# 更简单的写法：每天早 8 点和晚 8 点各巡检一次
+# 0 8,20 * * * hermes -s ops-toolkit -c "执行日常巡检" --output /tmp/sre-check-$(date +\%Y\%m\%d).md
+```
+
+#### Gateway 模式：从聊天平台触发巡检
+
+Gateway 模式让 Hermes 监听消息平台，随时随地通过聊天消息触发巡检。
+
+```bash
+# 启动 Hermes Gateway
+hermes gateway start --skills ops-toolkit
+
+# 配置消息平台连接
+hermes gateway config --platform telegram --token "YOUR_TELEGRAM_BOT_TOKEN"
+hermes gateway config --platform discord --webhook-url "YOUR_DISCORD_WEBHOOK_URL"
+hermes gateway config --platform slack --webhook-url "YOUR_SLACK_WEBHOOK_URL"
+```
+
+在聊天平台中触发巡检：
+
+```
+# Telegram / Discord / Slack 中发送消息：
+/巡检
+/health-check
+/检查数据库
+
+# Hermes 收到消息后自动执行巡检并返回结果
+# Bot 回复：
+# ✅ CPU: 32% | ⚠️ 内存: 82% | ✅ 磁盘: 45% | ❌ MySQL: 连接数超限
+# 建议：MySQL 连接数已达 480/500，建议检查慢查询或增加 max_connections
+```
+
+### 2.5 示例场景
+
+#### 场景：多集群日常巡检 + 即时告警
+
+```bash
+# 第一步：启动 Hermes 并加载技能
+hermes -s ops-toolkit
+
+# 第二步：并行巡检多个集群
+> delegate_task: 同时对以下集群执行巡检
+> - cluster-cn-east: 检查 CPU、内存、磁盘
+> - cluster-cn-south: 检查服务状态和网络
+> - cluster-us-west: 检查数据库连接和慢查询
+> 输出对比报告，标注异常项
+
+# 第三步：设置 Gateway 实现即时告警
+hermes gateway start --skills ops-toolkit --platform telegram --token "BOT_TOKEN"
+
+# 第四步：在手机上通过 Telegram 随时查看
+# 发送: /巡检 cluster-cn-east
+# Bot 即时返回巡检结果
+```
+
+---
+
+## 3. OpenClaw 集成
+
+### 3.1 概述
+
+OpenClaw 是一个开源 AI Agent 框架，支持本地技能扩展和网关模式。SRE Ops-Toolkit 可作为本地技能安装到 OpenClaw 工作区，通过 `openclaw agent --local` 在本地执行巡检，也可通过 Gateway 模式从消息平台远程触发。
+
+**核心优势：**
+- 纯本地运行，无需云端依赖
+- 轻量级技能管理
+- 支持从 Telegram/Discord/Slack 等平台触发
+
+### 3.2 安装配置
+
+#### 第一步：复制技能到 OpenClaw 工作区
+
+```bash
+# 创建 OpenClaw 技能目录
+mkdir -p ~/.openclaw/skills/ops-toolkit/
+
+# 复制技能文件
+cp -r /path/to/ops-toolkit/* ~/.openclaw/skills/ops-toolkit/
+
+# 确认文件已复制
+ls ~/.openclaw/skills/ops-toolkit/
+# 预期输出：skill.yaml  commands/  README.md
+```
+
+#### 第二步：验证技能已安装
+
+```bash
+# 列出已安装的技能
+openclaw skills list
+
+# 预期输出：
+# NAME          CATEGORY    STATUS
+# ops-toolkit   devops      ✅ installed
+```
+
+如果未显示，检查目录路径是否正确：
+
+```bash
+# 确认目录结构
+tree ~/.openclaw/skills/ops-toolkit/
+# 应包含 skill.yaml 配置文件
+```
+
+### 3.3 基本用法
+
+#### 本地执行健康巡检
+
+```bash
+# 使用本地模式运行巡检
+openclaw agent --local --skill ops-toolkit --prompt "执行服务器健康巡检"
+
+# 更简洁的写法（如果技能已默认加载）
+openclaw agent --local "检查系统资源使用情况"
+```
+
+#### 交互式巡检
+
+```bash
+# 启动本地交互模式
+openclaw agent --local --interactive
+
+# 进入后输入指令
+> 执行磁盘空间分析
+> 检查 nginx 和 mysql 的服务状态
+> 分析最近一小时的错误日志
+```
+
+### 3.4 高级用法
+
+#### Gateway 模式：从消息平台触发巡检
+
+配置 OpenClaw Gateway 后，可以在 Telegram/Discord/Slack 中通过消息触发巡检。
+
+```bash
+# 启动 OpenClaw Gateway
+openclaw gateway start --skills ops-toolkit
+
+# 配置消息平台
+openclaw gateway config --channel telegram --token "YOUR_BOT_TOKEN"
+openclaw gateway config --channel discord --webhook "YOUR_WEBHOOK_URL"
+openclaw gateway config --channel slack --webhook "YOUR_WEBHOOK_URL"
+```
+
+在聊天平台中触发后，OpenClaw 执行巡检并通过消息发送结果：
+
+```bash
+# 通过命令行主动发送巡检报告到指定聊天
+openclaw message send --channel telegram --target @mychat --message "巡检报告"
+
+# 发送完整报告
+openclaw message send --channel discord --target #ops-alerts --message "每日巡检报告已生成，请查看附件"
+```
+
+#### 在聊天平台中的交互示例
+
+```
+用户: /health-check
+OpenClaw Bot: 🔍 正在执行服务器巡检...
+OpenClaw Bot: ✅ CPU: 28% | ✅ 内存: 65% | ⚠️ 磁盘 /data: 78% | ✅ nginx: running | ✅ mysql: running
+OpenClaw Bot: ⚠️ 注意：/data 分区使用率接近 80% 阈值，建议清理旧日志。
+
+用户: /check mysql
+OpenClaw Bot: 🔍 正在检查 MySQL...
+OpenClaw Bot: ✅ 服务状态: running (uptime 45d)
+OpenClaw Bot: ✅ 当前连接数: 320/500
+OpenClaw Bot: ⚠️ 慢查询: 最近 1 小时 12 条 (>1s)
+OpenClaw Bot: ✅ 复制延迟: 0s
+```
+
+#### 定时巡检（Cron）
+
+```bash
+# 创建定时巡检脚本
+cat > /tmp/openclaw-daily-check.sh << 'SCRIPT'
+#!/bin/bash
+REPORT=$(openclaw agent --local --skill ops-toolkit --prompt "执行日常巡检，只输出异常项" 2>/dev/null)
+
+if [ -n "$REPORT" ]; then
+  # 发送到 Telegram
+  openclaw message send --channel telegram --target @sre-alerts --message "$REPORT"
+fi
+SCRIPT
+
+chmod +x /tmp/openclaw-daily-check.sh
+
+# 添加 crontab：每天早 9 点执行
+crontab -e
+# 添加：
+0 9 * * * /tmp/openclaw-daily-check.sh
+```
+
+### 3.5 示例场景
+
+#### 场景：从 Telegram 远程巡检并获取报告
+
+```bash
+# 第一步：确保 OpenClaw Gateway 已启动
+openclaw gateway start --skills ops-toolkit --channel telegram --token "BOT_TOKEN"
+
+# 第二步：在手机上打开 Telegram，向 Bot 发送指令
+# /巡检
+# /health-check full
+# /check redis
+
+# 第三步：如果需要主动推送报告
+openclaw agent --local --skill ops-toolkit --prompt "执行完整巡检" > /tmp/report.md
+openclaw message send --channel telegram --target @mychat --message "📋 今日巡检报告" --attach /tmp/report.md
+
+# 第四步：故障时即时通知
+openclaw agent --local --skill ops-toolkit --prompt "检测到磁盘告警，立即分析 /data 分区的大文件" > /tmp/disk-alert.md
+openclaw message send --channel slack --target #incident --message "🚨 磁盘告警详情" --attach /tmp/disk-alert.md
+```
+
+---
+
+## 4. 对比总结
+
+| 特性 | Claude Code | Hermes Agent | OpenClaw |
+|------|-------------|--------------|----------|
+| **安装方式** | 项目根目录 `CLAUDE.md` | `hermes skills install` 或手动复制 | 手动复制到 `~/.openclaw/skills/` |
+| **一次性执行** | `claude -p "指令"` | `hermes -s ops-toolkit -c "指令"` | `openclaw agent --local "指令"` |
+| **交互模式** | `claude` | `hermes` + `/skill ops-toolkit` | `openclaw agent --local --interactive` |
+| **并行任务** | 不原生支持 | `delegate_task` 原生支持 | 不原生支持 |
+| **定时巡检** | crontab + `claude -p` | 内置 Cron 支持 | crontab + `openclaw agent --local` |
+| **消息平台集成** | 不支持 | Gateway Mode（Telegram/Discord/Slack） | Gateway Mode（Telegram/Discord/Slack） |
+| **自定义命令** | Slash Command（`.claude/commands/`） | Skill 内置命令 | Skill 内置命令 |
+| **自定义 Agent** | `.claude/agents/` | Skill 配置 | 无 |
+| **适用场景** | 开发环境、CI/CD | 多集群运维、团队协作 | 轻量级本地运维、即时通讯集成 |
+| **上手难度** | ⭐ 简单 | ⭐⭐ 中等 | ⭐ 简单 |
+
+### 快速选择建议
+
+- **个人开发者 / 小团队** → 选 **Claude Code**，配置简单，直接在终端用
+- **中大型 SRE 团队** → 选 **Hermes Agent**，并行任务 + 定时巡检 + 消息通知一条龙
+- **需要消息平台集成 / 纯本地运行** → 选 **OpenClaw**，轻量级 + Gateway 模式
+
+---
+
+> 💡 **提示：** 三种 Agent 并不冲突，可以根据场景混合使用。例如：日常开发用 Claude Code 快速排查，生产巡检用 Hermes Agent 并行执行，移动端用 OpenClaw Gateway 随时查看。
+
+
 ## 协议
 
 本项目基于 [MIT 协议](https://opensource.org/licenses/MIT) 开源。
